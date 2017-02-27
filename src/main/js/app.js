@@ -1,6 +1,3 @@
-/**
- * Created by Joshua on 27/02/2017.
- */
 'use strict';
 
 const React = require('react');
@@ -22,31 +19,40 @@ class App extends React.Component {
     }
 
     loadFromServer(pageSize) {
-        follow(client, root, [{rel: 'employees', params: {size: pageSize}}])
-            .then(employeeCollection => {
-                return client({
-                    method: 'GET',
-                    path: employeeCollection.entity._links.profile.href,
-                    headers: {'Accept': 'application/schema+json'}
-                }).then(schema => { this.schema = schema.entity; return employeeCollection;});
-            }).done(employeeCollection => {
-                this.setState({
-                    employees: employeeCollection.entity._embedded.employees,
-                    attributes: Object.keys(this.schema.properties),
-                    pageSize: pageSize,
-                    links: employeeCollection.entity._links});
+        follow(client, root, [
+            {rel: 'employees', params: {size: pageSize}}]
+        ).then(employeeCollection => {
+            return client({
+                method: 'GET',
+                path: employeeCollection.entity._links.profile.href,
+                headers: {'Accept': 'application/schema+json'}
+            }).then(schema => {
+                this.schema = schema.entity;
+                return employeeCollection;
             });
+        }).done(employeeCollection => {
+            this.setState({
+                employees: employeeCollection.entity._embedded.employees,
+                attributes: Object.keys(this.schema.properties),
+                pageSize: pageSize,
+                links: employeeCollection.entity._links});
+        });
     }
 
     onCreate(newEmployee) {
         follow(client, root, ['employees']).then(employeeCollection => {
             return client({
-                method: 'POST', path: employeeCollection.entity._links.self.href,
-                entity: newEmployee, headers: {'Content-Type': 'application/json'}
+                method: 'POST',
+                path: employeeCollection.entity._links.self.href,
+                entity: newEmployee,
+                headers: {'Content-Type': 'application/json'}
             })
         }).then(response => {
-            return follow(client, root, [{rel: 'employees', params: {'size': this.state.pageSize}}]);
-        }).done(response => {this.onNavigate(response.entity._links.last.href); });
+            return follow(client, root, [
+                {rel: 'employees', params: {'size': this.state.pageSize}}]);
+        }).done(response => {
+            this.onNavigate(response.entity._links.last.href);
+        });
     }
 
     onDelete(employee) {
@@ -58,10 +64,12 @@ class App extends React.Component {
     onNavigate(navUri) {
         client({method: 'GET', path: navUri}).done(employeeCollection => {
             this.setState({
-                employees: employeeCollection.entity._embedded.employees, attributes: this.state.attributes,
-                pageSize: this.state.pageSize, links: employeeCollection.entity._links
+                employees: employeeCollection.entity._embedded.employees,
+                attributes: this.state.attributes,
+                pageSize: this.state.pageSize,
+                links: employeeCollection.entity._links
             });
-        })
+        });
     }
 
     updatePageSize(pageSize) {
@@ -75,7 +83,15 @@ class App extends React.Component {
     }
 
     render() {
-        return (<EmployeeList employees={this.state.employees}/>)
+        return (
+            <div>
+                <CreateDialog attributes={this.state.attributes} onCreate={this.onCreate}/>
+                <EmployeeList employees={this.state.employees}
+                              links={this.state.links} pageSize={this.state.pageSize}
+                              onNavigate={this.onNavigate} onDelete={this.onDelete}
+                              updatePageSize={this.updatePageSize}/>
+            </div>
+        )
     }
 }
 
@@ -94,16 +110,20 @@ class CreateDialog extends React.Component {
         });
         this.props.onCreate(newEmployee);
 
+        // clear out the dialog's inputs
         this.props.attributes.forEach(attribute => {
-           ReactDOM.findDOMNode(this.refs[attribute]).value = '';
+            ReactDOM.findDOMNode(this.refs[attribute]).value = '';
         });
 
+        // Navigate away from the dialog to hide it.
         window.location = "#";
     }
 
     render() {
         var inputs = this.props.attributes.map(attribute =>
-            <p key={attribute}><input type="text" placeholder={attribute} ref={attribute} className="field" /></p>
+            <p key={attribute}>
+                <input type="text" placeholder={attribute} ref={attribute} className="field" />
+            </p>
         );
 
         return (
@@ -122,12 +142,13 @@ class CreateDialog extends React.Component {
             </div>
         )
     }
+
 }
 
 /*
     Handles entire table
  */
-class EmployeeList extends React.Component{
+class EmployeeList extends React.Component {
 
     constructor(props) {
         super(props);
@@ -141,14 +162,15 @@ class EmployeeList extends React.Component{
     handleInput(e) {
         e.preventDefault();
         var pageSize = ReactDOM.findDOMNode(this.refs.pageSize).value;
-        if(/^[0-9]+$/.test(pageSize)) {
+        if (/^[0-9]+$/.test(pageSize)) {
             this.props.updatePageSize(pageSize);
         } else {
-            ReactDOM.findDOMNode(this.refs.pageSize).value = pageSize.substring(0, pageSize.length - 1);
+            ReactDOM.findDOMNode(this.refs.pageSize).value =
+                pageSize.substring(0, pageSize.length - 1);
         }
     }
 
-    handleNavFirst(e) {
+    handleNavFirst(e){
         e.preventDefault();
         this.props.onNavigate(this.props.links.first.href);
     }
@@ -170,45 +192,49 @@ class EmployeeList extends React.Component{
 
     render() {
         var employees = this.props.employees.map(employee =>
-            <Employee key={employee._links.self.href} employee={employee}/>
+            <Employee key={employee._links.self.href} employee={employee} onDelete={this.props.onDelete}/>
         );
 
         var navLinks = [];
         if ("first" in this.props.links) {
-            navLinks.push(<button key="first" onClick={this.handleNavFirst()}>&lt;&lt;</button> )
+            navLinks.push(<button key="first" onClick={this.handleNavFirst}>&lt;&lt;</button>);
         }
         if ("prev" in this.props.links) {
-            navLinks.push(<button key="prev" onClick={this.handleNavPrev()}>&lt;</button> )
+            navLinks.push(<button key="prev" onClick={this.handleNavPrev}>&lt;</button>);
         }
         if ("next" in this.props.links) {
-            navLinks.push(<button key="next" onClick={this.handleNavNext()}>&gt;</button> )
+            navLinks.push(<button key="next" onClick={this.handleNavNext}>&gt;</button>);
         }
         if ("last" in this.props.links) {
-            navLinks.push(<button key="last" onClick={this.handleNavLast()}>&gt;&gt;</button> )
+            navLinks.push(<button key="last" onClick={this.handleNavLast}>&gt;&gt;</button>);
         }
 
         return (
             <div>
                 <input ref="pageSize" defaultValue={this.props.pageSize} onInput={this.handleInput}/>
                 <table>
-                <tbody>
+                    <tbody>
                     <tr>
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Description</th>
+                        <th></th>
                     </tr>
-                {employees}
-                </tbody>
+                    {employees}
+                    </tbody>
                 </table>
+                <div>
+                    {navLinks}
+                </div>
             </div>
         )
     }
 }
 
 /*
- Handles individual employee records in the table
+    Handles individual employee records in the table
  */
-class Employee extends React.Component{
+class Employee extends React.Component {
 
     constructor(props) {
         super(props);
@@ -225,7 +251,9 @@ class Employee extends React.Component{
                 <td>{this.props.employee.firstName}</td>
                 <td>{this.props.employee.lastName}</td>
                 <td>{this.props.employee.description}</td>
-                <td><button onClick={this.handleDelete}>Delete</button></td>
+                <td>
+                    <button onClick={this.handleDelete}>Delete</button>
+                </td>
             </tr>
         )
     }
