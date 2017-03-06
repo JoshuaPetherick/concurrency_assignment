@@ -1,9 +1,11 @@
 package io;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import javax.persistence.Id;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.Version;
 
 
 @Data
@@ -14,6 +16,8 @@ public class Employee {
     private String firstName;
     private String lastName;
     private String description;
+
+    private @Version @JsonIgnore Long version;
 
     private Employee() {}
 
