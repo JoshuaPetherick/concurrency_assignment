@@ -5,6 +5,7 @@ const ReactDOM = require('react-dom')
 const client = require('./client');
 const when = require('when');
 const follow = require('./follow');
+const stompClient = require('./websocket-listener');
 
 const root = '/api';
 
@@ -18,6 +19,8 @@ class App extends React.Component {
         this.onUpdate = this.onUpdate.bind(this);
         this.onDelete = this.onDelete.bind(this);
         this.onNavigate = this.onNavigate.bind(this);
+        this.refreshCurrentPage = this.refreshCurrentPage.bind(this);
+        this.refreshAndGoToLastPage = this.refreshAndGoToLastPage.bind(this);
     }
 
     loadFromServer(pageSize) {
@@ -51,25 +54,18 @@ class App extends React.Component {
     }
 
     onCreate(newEmployee) {
-        follow(client, root, ['employees']).then(employeeCollection => {
-            return client({
+        follow(client, root, ['employees']).done(response => {
+            client({
                 method: 'POST',
-                path: employeeCollection.entity._links.self.href,
+                path: response.entity._links.self.href,
                 entity: newEmployee,
                 headers: {'Content-Type': 'application/json'}
             })
-        }).then(response => {
-            return follow(client, root, [
-                {rel: 'employees', params: {'size': this.state.pageSize}}]);
-        }).done(response => {
-            this.onNavigate(response.entity._links.last.href);
-        });
+        })
     }
 
     onDelete(employee) {
-        client({method: 'DELETE', path: employee._links.self.href}).done(response => {
-            this.loadFromServer(this.state.pageSize);
-        });
+        client({method: 'DELETE', path: employee.entity._links.self.href});
     }
 
     onNavigate(navUri) {
@@ -115,15 +111,64 @@ class App extends React.Component {
         }
     }
 
+    refreshAndGoToLastPage(message) {
+        follow(client, root, [{
+            rel: 'employees',
+            params: {size: this.state.pageSize}
+        }]).done(response => {
+            if (response.entity._links.last !== undefined) {
+                this.onNavigate(response.entity._links.last.href);
+            } else {
+                this.onNavigate(response.entity._links.self.href);
+            }
+        })
+    }
+
+    refreshCurrentPage(message) {
+        follow(client, root, [{
+            rel: 'employees',
+            params: {
+                size: this.state.pageSize,
+                page: this.state.page.number
+            }
+        }]).then(employeeCollection => {
+            this.links = employeeCollection.entity._links;
+            this.page = employeeCollection.entity.page;
+
+            return employeeCollection.entity._embedded.employees.map(employee => {
+                return client({
+                    method: 'GET',
+                    path: employee._links.self.href
+                })
+            });
+        }).then(employeePromises => {
+            return when.all(employeePromises);
+        }).then(employees => {
+            this.setState({
+                page: this.page,
+                employees: employees,
+                attributes: Object.keys(this.schema.properties),
+                pageSize: this.state.pageSize,
+                links: this.links
+            });
+        });
+    }
+
     componentDidMount() {
         this.loadFromServer(this.state.pageSize);
+        stompClient.register([
+            {route: '/topic/newEmployee', callback: this.refreshAndGoToLastPage},
+            {route: '/topic/updateEmployee', callback: this.refreshCurrentPage},
+            {route: '/topic/deleteEmployee', callback: this.refreshCurrentPage}
+        ]);
     }
 
     render() {
         return (
             <div>
                 <CreateDialog attributes={this.state.attributes} onCreate={this.onCreate}/>
-                <EmployeeList employees={this.state.employees}
+                <EmployeeList page={this.state.page}
+                              employees={this.state.employees}
                               links={this.state.links}
                               pageSize={this.state.pageSize}
                               attributes={this.state.attributes}
@@ -267,6 +312,9 @@ class EmployeeList extends React.Component {
     }
 
     render() {
+        var pageInfo = this.props.page.hasOwnProperty("number") ?
+            <h3>Employees - Page {this.props.page.number + 1} of {this.props.page.totalPages}</h3> : null;
+
         var employees = this.props.employees.map(employee =>
             <Employee key={employee.entity._links.self.href} employee={employee} attributes={this.props.attributes}
                       onUpdate={this.props.onUpdate} onDelete={this.props.onDelete}/>
@@ -288,6 +336,7 @@ class EmployeeList extends React.Component {
 
         return (
             <div>
+                {pageInfo}
                 <input ref="pageSize" defaultValue={this.props.pageSize} onInput={this.handleInput}/>
                 <table>
                     <tbody>
