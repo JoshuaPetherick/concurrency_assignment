@@ -13,7 +13,7 @@ class App extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {employees: [], attributes: [], pageSize: 2, links: {}};
+        this.state = {employees: [], attributes: [], page: 1, pageSize: 2, links: {}};
         this.updatePageSize = this.updatePageSize.bind(this);
         this.onCreate = this.onCreate.bind(this);
         this.onUpdate = this.onUpdate.bind(this);
@@ -37,6 +37,7 @@ class App extends React.Component {
                 return employeeCollection;
             });
         }).then(employeeCollection => {
+            this.page = employeeCollection.entity.page;
             return employeeCollection.entity._embedded.employees.map(employee =>
             client({
                 method: 'GET',
@@ -46,6 +47,7 @@ class App extends React.Component {
             return when.all(employeePromises);
         }).done(employees => {
             this.setState({
+                page: this.page,
                 employees: employees,
                 attributes: Object.keys(this.schema.properties),
                 pageSize: pageSize,
@@ -71,6 +73,7 @@ class App extends React.Component {
     onNavigate(navUri) {
         client({method: 'GET', path: navUri}).then(employeeCollection => {
             this.links = employeeCollection.entity._links;
+            this.page = employeeCollection.entity.page;
             return employeeCollection.entity._embedded.employees.map(employee =>
                 client({
                     method: 'GET',
@@ -80,6 +83,7 @@ class App extends React.Component {
             return when.all(employeePromises);
         }).done(employees => {
             this.setState({
+                page: this.page,
                 employees: employees,
                 attributes: Object.keys(this.schema.properties),
                 pageSize: this.state.pageSize,

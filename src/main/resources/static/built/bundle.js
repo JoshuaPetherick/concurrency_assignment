@@ -71,7 +71,7 @@
 	
 	        var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 	
-	        _this.state = { employees: [], attributes: [], pageSize: 2, links: {} };
+	        _this.state = { employees: [], attributes: [], page: 1, pageSize: 2, links: {} };
 	        _this.updatePageSize = _this.updatePageSize.bind(_this);
 	        _this.onCreate = _this.onCreate.bind(_this);
 	        _this.onUpdate = _this.onUpdate.bind(_this);
@@ -98,6 +98,7 @@
 	                    return employeeCollection;
 	                });
 	            }).then(function (employeeCollection) {
+	                _this2.page = employeeCollection.entity.page;
 	                return employeeCollection.entity._embedded.employees.map(function (employee) {
 	                    return client({
 	                        method: 'GET',
@@ -108,6 +109,7 @@
 	                return when.all(employeePromises);
 	            }).done(function (employees) {
 	                _this2.setState({
+	                    page: _this2.page,
 	                    employees: employees,
 	                    attributes: Object.keys(_this2.schema.properties),
 	                    pageSize: pageSize,
@@ -138,6 +140,7 @@
 	
 	            client({ method: 'GET', path: navUri }).then(function (employeeCollection) {
 	                _this3.links = employeeCollection.entity._links;
+	                _this3.page = employeeCollection.entity.page;
 	                return employeeCollection.entity._embedded.employees.map(function (employee) {
 	                    return client({
 	                        method: 'GET',
@@ -148,6 +151,7 @@
 	                return when.all(employeePromises);
 	            }).done(function (employees) {
 	                _this3.setState({
+	                    page: _this3.page,
 	                    employees: employees,
 	                    attributes: Object.keys(_this3.schema.properties),
 	                    pageSize: _this3.state.pageSize,
