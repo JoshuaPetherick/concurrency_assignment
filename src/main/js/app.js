@@ -13,19 +13,32 @@ class App extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {employees: [], attributes: [], page: 1, pageSize: 2, links: {}};
+        this.state = {
+            employees: [], eAttributes: [], ePage: 1, ePageSize: 3, eLinks: {},
+            shifts: [], sAttributes: [], sPage: 1, sPageSize: 2, sLinks: {}
+        };
         this.updatePageSize = this.updatePageSize.bind(this);
+        this.updateShiftPageSize = this.updateShiftPageSize.bind(this);
+
         this.onCreate = this.onCreate.bind(this);
+        this.onCreateShift = this.onCreateShift.bind(this);
+
         this.onUpdate = this.onUpdate.bind(this);
+        this.onUpdateShift = this.onUpdateShift.bind(this);
+
         this.onDelete = this.onDelete.bind(this);
+        this.onDeleteShift = this.onDeleteShift.bind(this);
+
         this.onNavigate = this.onNavigate.bind(this);
+        this.onNavigateShift = this.onNavigateShift.bind(this);
+
         this.refreshCurrentPage = this.refreshCurrentPage.bind(this);
         this.refreshAndGoToLastPage = this.refreshAndGoToLastPage.bind(this);
     }
 
-    loadFromServer(pageSize) {
+    loadFromServer(ePageSize) {
         follow(client, root, [
-            {rel: 'employees', params: {size: pageSize}}]
+            {rel: 'employees', params: {size: ePageSize}}]
         ).then(employeeCollection => {
             return client({
                 method: 'GET',
@@ -47,11 +60,44 @@ class App extends React.Component {
             return when.all(employeePromises);
         }).done(employees => {
             this.setState({
-                page: this.page,
+                ePage: this.page,
                 employees: employees,
-                attributes: Object.keys(this.schema.properties),
-                pageSize: pageSize,
-                links: this.links});
+                eAttributes: Object.keys(this.schema.properties),
+                ePageSize: ePageSize,
+                eLinks: this.links});
+        });
+    }
+
+    loadFromServerShift(sPageSize) {
+        follow(client, root, [
+            {rel: 'shifts', params: {size: sPageSize}}]
+        ).then(shiftCollection => {
+            return client({
+                method: 'GET',
+                path: shiftCollection.entity._links.profile.href,
+                headers: {'Accept': 'application/schema+json'}
+            }).then(schema => {
+                this.schema = schema.entity;
+                this.links = shiftCollection.entity._links;
+                return shiftCollection;
+            });
+        }).then(shiftCollection => {
+            this.page = shiftCollection.entity.page;
+            return shiftCollection.entity._embedded.shifts.map(shift =>
+                client({
+                    method: 'GET',
+                    path: shift._links.self.href
+                }));
+        }).then(shiftPromises => {
+            return when.all(shiftPromises);
+        }).done(shifts => {
+            this.setState({
+                sPage: this.page,
+                shifts: shifts,
+                sAttributes: Object.keys(this.schema.properties),
+                sPageSize: sPageSize,
+                sLinks: this.links
+            });
         });
     }
 
@@ -66,8 +112,59 @@ class App extends React.Component {
         })
     }
 
+    onCreateShift(newShift) {
+        follow(client, root, ['shifts']).done(response => {
+            client({
+                method: 'POST',
+                path: response.entity._links.self.href,
+                entity: newShift,
+                headers: {'Content-Type': 'application/json'}
+            })
+        })
+    }
+
     onDelete(employee) {
         client({method: 'DELETE', path: employee.entity._links.self.href});
+    }
+
+    onDeleteShift(shift) {
+        client({method: 'DELETE', path: shift.entity._links.self.href});
+    }
+
+    onUpdate(employee, updatedEmployee) {
+        client({
+            method: 'PUT',
+            path: employee.entity._links.self.href,
+            entity: updatedEmployee,
+            headers: {
+                'Content-Type': 'application/json',
+                'If-Match': employee.headers.Etag
+            }
+        }).done(response => {
+            this.loadFromServer(this.state.ePageSize);
+        }, response => {
+            if (response.status.code === 412) {
+                alert('DENIED: Unable to update' + employee.entity._links.self.href + '. Your copy is stale. ');
+            }
+        });
+    }
+
+    onUpdateShift(shift, updatedShift) {
+        client({
+            method: 'PUT',
+            path: shift.entity._links.self.href,
+            entity: updatedShift,
+            headers: {
+                'Content-Type': 'application/json',
+                'If-Match': shift.headers.Etag
+            }
+        }).done(response => {
+            this.loadFromServerShift(this.state.sPageSize);
+        }, response => {
+            if (response.status.code === 412) {
+                alert('DENIED: Unable to update' + shift.entity._links.self.href + '. Your copy is stale. ');
+            }
+        });
     }
 
     onNavigate(navUri) {
@@ -83,42 +180,51 @@ class App extends React.Component {
             return when.all(employeePromises);
         }).done(employees => {
             this.setState({
-                page: this.page,
+                ePage: this.page,
                 employees: employees,
-                attributes: Object.keys(this.schema.properties),
-                pageSize: this.state.pageSize,
-                links: this.links});
+                eAttributes: Object.keys(this.schema.properties),
+                ePageSize: this.state.ePageSize,
+                eLinks: this.links});
         });
     }
 
-    onUpdate(employee, updatedEmployee) {
-        client({
-            method: 'PUT',
-            path: employee.entity._links.self.href,
-            entity: updatedEmployee,
-            headers: {
-                'Content-Type': 'application/json',
-                'If-Match': employee.headers.Etag
-            }
-        }).done(response => {
-            this.loadFromServer(this.state.pageSize);
-        }, response => {
-            if (response.status.code === 412) {
-                alert('DENIED: Unable to update' + employee.entity._links.self.href + '. Your copy is stale. ');
-            }
+    onNavigateShift(navUri) {
+        client({method: 'GET', path: navUri}).then(shiftCollection => {
+            this.links = shiftCollection.entity._links;
+            this.page = shiftCollection.entity.page;
+            return shiftCollection.entity._embedded.shifts.map(shift =>
+                client({
+                    method: 'GET',
+                    path: shift._links.self.href
+                }));
+        }).then(shiftPromises => {
+            return when.all(shiftPromises);
+        }).done(shifts => {
+            this.setState({
+                sPage: this.page,
+                shifts: shifts,
+                sAttributes: Object.keys(this.schema.properties),
+                sPageSize: this.state.sPageSize,
+                sLinks: this.links});
         });
     }
 
     updatePageSize(pageSize) {
-        if (pageSize !== this.state.pageSize) {
+        if (pageSize !== this.state.ePageSize) {
             this.loadFromServer(pageSize);
+        }
+    }
+
+    updateShiftPageSize(pageSize) {
+        if (pageSize !== this.state.sPageSize) {
+            this.loadFromServerShift(pageSize);
         }
     }
 
     refreshAndGoToLastPage(message) {
         follow(client, root, [{
             rel: 'employees',
-            params: {size: this.state.pageSize}
+            params: {size: this.state.ePageSize}
         }]).done(response => {
             if (response.entity._links.last !== undefined) {
                 this.onNavigate(response.entity._links.last.href);
@@ -132,8 +238,8 @@ class App extends React.Component {
         follow(client, root, [{
             rel: 'employees',
             params: {
-                size: this.state.pageSize,
-                page: this.state.page.number
+                size: this.state.ePageSize,
+                page: this.state.ePage.number
             }
         }]).then(employeeCollection => {
             this.links = employeeCollection.entity._links;
@@ -149,17 +255,18 @@ class App extends React.Component {
             return when.all(employeePromises);
         }).then(employees => {
             this.setState({
-                page: this.page,
+                ePage: this.page,
                 employees: employees,
-                attributes: Object.keys(this.schema.properties),
-                pageSize: this.state.pageSize,
-                links: this.links
+                eAttributes: Object.keys(this.schema.properties),
+                ePageSize: this.state.ePageSize,
+                eLinks: this.links
             });
         });
     }
 
     componentDidMount() {
-        this.loadFromServer(this.state.pageSize);
+        this.loadFromServer(this.state.ePageSize);
+        this.loadFromServerShift(this.state.sPageSize);
         stompClient.register([
             {route: '/topic/newEmployee', callback: this.refreshAndGoToLastPage},
             {route: '/topic/updateEmployee', callback: this.refreshCurrentPage},
@@ -168,18 +275,28 @@ class App extends React.Component {
     }
 
     render() {
+        console.log(this.state);
         return (
             <div>
-                <CreateDialog attributes={this.state.attributes} onCreate={this.onCreate}/>
-                <EmployeeList page={this.state.page}
+                <CreateDialog attributes={this.state.eAttributes} onCreate={this.onCreate}/>
+                <EmployeeList page={this.state.ePage}
                               employees={this.state.employees}
-                              links={this.state.links}
-                              pageSize={this.state.pageSize}
-                              attributes={this.state.attributes}
+                              links={this.state.eLinks}
+                              pageSize={this.state.ePageSize}
+                              attributes={this.state.eAttributes}
                               onNavigate={this.onNavigate}
                               onUpdate={this.onUpdate}
                               onDelete={this.onDelete}
                               updatePageSize={this.updatePageSize}/>
+                <ShiftList page={this.state.sPage}
+                           shifts={this.state.shifts}
+                           links={this.state.sLinks}
+                           pageSize={this.state.sPageSize}
+                           attributes={this.state.sAttributes}
+                           onNavigate={this.onNavigateShift}
+                           onUpdate={this.onUpdateShift}
+                           onDelete={this.onDeleteShift}
+                           updatePageSize={this.updateShiftPageSize}/>
             </div>
         )
     }
@@ -228,10 +345,9 @@ class CreateDialog extends React.Component {
             </div>
         )
     }
-
 }
 
-class UpdateDialog extends React.Component {
+class UpdateEmployeeDialog extends React.Component {
 
     constructor(props) {
         super(props);
@@ -261,6 +377,45 @@ class UpdateDialog extends React.Component {
                     <div>
                         <a href="#" title="Close" className="close">X</a>
                         <h2>Update an employee</h2>
+                        <form> {inputs} <button onClick={this.handleSubmit}>Update</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+}
+
+class UpdateShiftDialog extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleSubmit(e) {
+        e.preventDefault();
+        var updateShift = {};
+        this.props.attributes.forEach(attribute => {
+            updateShift[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
+        });
+        this.props.onUpdate(this.props.shift, updateShift);
+        window.locatiom = '#';
+    }
+
+    render() {
+        var inputs = this.props.attributes.map(attribute =>
+            <p key={this.props.shift.entity[attribute]}>
+                <input type="text" placeholder={attribute} defaultValue={this.props.shift.entity[attribute]} ref={attribute} className="field" />
+            </p>);
+        var dialogID = "updateShift-" + this.props.shift.entity._links.self.href;
+        return (
+            <div key={this.props.shift.entity._links.self.href}>
+                <a href={"#" + dialogID}>Update</a>
+                <div id={dialogID} className="modalDialog">
+                    <div>
+                        <a href="#" title="Close" className="close">X</a>
+                        <h2>Update a shift</h2>
                         <form> {inputs} <button onClick={this.handleSubmit}>Update</button>
                         </form>
                     </div>
@@ -383,7 +538,7 @@ class Employee extends React.Component {
                 <td>{this.props.employee.entity.lastName}</td>
                 <td>{this.props.employee.entity.description}</td>
                 <td>
-                    <UpdateDialog employee={this.props.employee} attributes={this.props.attributes} onUpdate={this.props.onUpdate}/>
+                    <UpdateEmployeeDialog employee={this.props.employee} attributes={this.props.attributes} onUpdate={this.props.onUpdate}/>
                 </td>
                 <td>
                     <button onClick={this.handleDelete}>Delete</button>
@@ -440,10 +595,10 @@ class ShiftList extends React.Component {
 
     render() {
         var pageInfo = this.props.page.hasOwnProperty("number") ?
-            <h3>Employees - Page {this.props.page.number + 1} of {this.props.page.totalPages}</h3> : null;
+            <h3>Shifts - Page {this.props.page.number + 1} of {this.props.page.totalPages}</h3> : null;
 
-        var shifts = this.props.employees.map(employee =>
-            <Shift key={employee.entity._links.self.href} employee={employee} attributes={this.props.attributes}
+        var shifts = this.props.shifts.map(shift =>
+            <Shift key={shift.entity._links.self.href} shift={shift} attributes={this.props.attributes}
                       onUpdate={this.props.onUpdate} onDelete={this.props.onDelete}/>
         );
 
@@ -496,17 +651,17 @@ class Shift extends React.Component {
     }
 
     handleDelete() {
-        this.props.onDelete(this.props.employee);
+        this.props.onDelete(this.props.shift);
     }
 
     render() {
         return (
             <tr>
-                <td>{this.props.employee.entity.description}</td>
-                <td>{this.props.employee.entity.day}</td>
-                <td>{this.props.employee.entity.employeeID}</td>
+                <td>{this.props.shift.entity.description}</td>
+                <td>{this.props.shift.entity.day}</td>
+                <td>{this.props.shift.entity.employeeId}</td>
                 <td>
-                    <UpdateDialog employee={this.props.employee} attributes={this.props.attributes} onUpdate={this.props.onUpdate}/>
+                    <UpdateShiftDialog shift={this.props.shift} attributes={this.props.attributes} onUpdate={this.props.onUpdate}/>
                 </td>
                 <td>
                     <button onClick={this.handleDelete}>Delete</button>
@@ -515,5 +670,8 @@ class Shift extends React.Component {
         )
     }
 }
+/*
+
+ */
 
 ReactDOM.render(<App />, document.getElementById('react'));
