@@ -645,6 +645,222 @@
 	    return Employee;
 	}(React.Component);
 	
+	/*
+	 Handles entire table
+	 */
+	
+	
+	var ShiftList = function (_React$Component6) {
+	    _inherits(ShiftList, _React$Component6);
+	
+	    function ShiftList(props) {
+	        _classCallCheck(this, ShiftList);
+	
+	        var _this15 = _possibleConstructorReturn(this, (ShiftList.__proto__ || Object.getPrototypeOf(ShiftList)).call(this, props));
+	
+	        _this15.handleNavFirst = _this15.handleNavFirst.bind(_this15);
+	        _this15.handleNavPrev = _this15.handleNavPrev.bind(_this15);
+	        _this15.handleNavNext = _this15.handleNavNext.bind(_this15);
+	        _this15.handleNavLast = _this15.handleNavLast.bind(_this15);
+	        _this15.handleInput = _this15.handleInput.bind(_this15);
+	        return _this15;
+	    }
+	
+	    _createClass(ShiftList, [{
+	        key: 'handleInput',
+	        value: function handleInput(e) {
+	            e.preventDefault();
+	            var pageSize = ReactDOM.findDOMNode(this.refs.pageSize).value;
+	            if (/^[0-9]+$/.test(pageSize)) {
+	                this.props.updatePageSize(pageSize);
+	            } else {
+	                ReactDOM.findDOMNode(this.refs.pageSize).value = pageSize.substring(0, pageSize.length - 1);
+	            }
+	        }
+	    }, {
+	        key: 'handleNavFirst',
+	        value: function handleNavFirst(e) {
+	            e.preventDefault();
+	            this.props.onNavigate(this.props.links.first.href);
+	        }
+	    }, {
+	        key: 'handleNavPrev',
+	        value: function handleNavPrev(e) {
+	            e.preventDefault();
+	            this.props.onNavigate(this.props.links.prev.href);
+	        }
+	    }, {
+	        key: 'handleNavNext',
+	        value: function handleNavNext(e) {
+	            e.preventDefault();
+	            this.props.onNavigate(this.props.links.next.href);
+	        }
+	    }, {
+	        key: 'handleNavLast',
+	        value: function handleNavLast(e) {
+	            e.preventDefault();
+	            this.props.onNavigate(this.props.links.last.href);
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this16 = this;
+	
+	            var pageInfo = this.props.page.hasOwnProperty("number") ? React.createElement(
+	                'h3',
+	                null,
+	                'Employees - Page ',
+	                this.props.page.number + 1,
+	                ' of ',
+	                this.props.page.totalPages
+	            ) : null;
+	
+	            var shifts = this.props.employees.map(function (employee) {
+	                return React.createElement(Shift, { key: employee.entity._links.self.href, employee: employee, attributes: _this16.props.attributes,
+	                    onUpdate: _this16.props.onUpdate, onDelete: _this16.props.onDelete });
+	            });
+	
+	            var navLinks = [];
+	            if ("first" in this.props.links) {
+	                navLinks.push(React.createElement(
+	                    'button',
+	                    { key: 'first', onClick: this.handleNavFirst },
+	                    '<<'
+	                ));
+	            }
+	            if ("prev" in this.props.links) {
+	                navLinks.push(React.createElement(
+	                    'button',
+	                    { key: 'prev', onClick: this.handleNavPrev },
+	                    '<'
+	                ));
+	            }
+	            if ("next" in this.props.links) {
+	                navLinks.push(React.createElement(
+	                    'button',
+	                    { key: 'next', onClick: this.handleNavNext },
+	                    '>'
+	                ));
+	            }
+	            if ("last" in this.props.links) {
+	                navLinks.push(React.createElement(
+	                    'button',
+	                    { key: 'last', onClick: this.handleNavLast },
+	                    '>>'
+	                ));
+	            }
+	
+	            return React.createElement(
+	                'div',
+	                null,
+	                pageInfo,
+	                React.createElement('input', { ref: 'pageSize', defaultValue: this.props.pageSize, onInput: this.handleInput }),
+	                React.createElement(
+	                    'table',
+	                    null,
+	                    React.createElement(
+	                        'tbody',
+	                        null,
+	                        React.createElement(
+	                            'tr',
+	                            null,
+	                            React.createElement(
+	                                'th',
+	                                null,
+	                                'Description'
+	                            ),
+	                            React.createElement(
+	                                'th',
+	                                null,
+	                                'Day/Time'
+	                            ),
+	                            React.createElement(
+	                                'th',
+	                                null,
+	                                'EmployeeID'
+	                            ),
+	                            React.createElement('th', null),
+	                            React.createElement('th', null)
+	                        ),
+	                        shifts
+	                    )
+	                ),
+	                React.createElement(
+	                    'div',
+	                    null,
+	                    navLinks
+	                )
+	            );
+	        }
+	    }]);
+	
+	    return ShiftList;
+	}(React.Component);
+	
+	/*
+	 Handles individual shift records in the table
+	 */
+	
+	
+	var Shift = function (_React$Component7) {
+	    _inherits(Shift, _React$Component7);
+	
+	    function Shift(props) {
+	        _classCallCheck(this, Shift);
+	
+	        var _this17 = _possibleConstructorReturn(this, (Shift.__proto__ || Object.getPrototypeOf(Shift)).call(this, props));
+	
+	        _this17.handleDelete = _this17.handleDelete.bind(_this17);
+	        return _this17;
+	    }
+	
+	    _createClass(Shift, [{
+	        key: 'handleDelete',
+	        value: function handleDelete() {
+	            this.props.onDelete(this.props.employee);
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            return React.createElement(
+	                'tr',
+	                null,
+	                React.createElement(
+	                    'td',
+	                    null,
+	                    this.props.employee.entity.description
+	                ),
+	                React.createElement(
+	                    'td',
+	                    null,
+	                    this.props.employee.entity.day
+	                ),
+	                React.createElement(
+	                    'td',
+	                    null,
+	                    this.props.employee.entity.employeeID
+	                ),
+	                React.createElement(
+	                    'td',
+	                    null,
+	                    React.createElement(UpdateDialog, { employee: this.props.employee, attributes: this.props.attributes, onUpdate: this.props.onUpdate })
+	                ),
+	                React.createElement(
+	                    'td',
+	                    null,
+	                    React.createElement(
+	                        'button',
+	                        { onClick: this.handleDelete },
+	                        'Delete'
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+	
+	    return Shift;
+	}(React.Component);
+	
 	ReactDOM.render(React.createElement(App, null), document.getElementById('react'));
 
 /***/ },
