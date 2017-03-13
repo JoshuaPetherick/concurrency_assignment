@@ -24,6 +24,9 @@ public class EventHandler
         this.entityLinks = entityLinks;
     }
 
+    /*
+        Handle Employees
+     */
     @HandleAfterCreate
     public void newEmployee(Employee employee) {
         this.websocket.convertAndSend(
@@ -42,8 +45,34 @@ public class EventHandler
                 MESSAGE_PREFIX + "/updateEmployee", getPath(employee));
     }
 
+    /*
+        Handle Shifts
+     */
+    @HandleAfterCreate
+    public void newShift(Shift shift) {
+        this.websocket.convertAndSend(
+                MESSAGE_PREFIX + "/newShift", getPath(shift));
+    }
+
+    @HandleAfterDelete
+    public void deleteShift(Shift shift) {
+        this.websocket.convertAndSend(
+                MESSAGE_PREFIX + "/deleteShift", getPath(shift));
+    }
+
+    @HandleAfterSave
+    public void updateShift(Shift shift) {
+        this.websocket.convertAndSend(
+                MESSAGE_PREFIX + "/updateShift", getPath(shift));
+    }
+
     private String getPath(Employee employee) {
         return this.entityLinks.linkForSingleResource(employee.getClass(),
                 employee.getId()).toUri().getPath();
+    }
+
+    private String getPath(Shift shift) {
+        return this.entityLinks.linkForSingleResource(shift.getClass(),
+                shift.getId()).toUri().getPath();
     }
 }
