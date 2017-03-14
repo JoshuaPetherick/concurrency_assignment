@@ -33,7 +33,10 @@ class App extends React.Component {
         this.onNavigateShift = this.onNavigateShift.bind(this);
 
         this.refreshCurrentPage = this.refreshCurrentPage.bind(this);
+        this.refreshCurrentPageShift = this.refreshCurrentPageShift.bind(this);
+
         this.refreshAndGoToLastPage = this.refreshAndGoToLastPage.bind(this);
+        this.refreshAndGoToLastPageShift = this.refreshAndGoToLastPageShift.bind(this);
     }
 
     loadFromServer(ePageSize) {
@@ -45,12 +48,12 @@ class App extends React.Component {
                 path: employeeCollection.entity._links.profile.href,
                 headers: {'Accept': 'application/schema+json'}
             }).then(schema => {
-                this.schema = schema.entity;
-                this.links = employeeCollection.entity._links;
+                this.eSchema = schema.entity;
+                this.eLinks = employeeCollection.entity._links;
                 return employeeCollection;
             });
         }).then(employeeCollection => {
-            this.page = employeeCollection.entity.page;
+            this.ePage = employeeCollection.entity.page;
             return employeeCollection.entity._embedded.employees.map(employee =>
             client({
                 method: 'GET',
@@ -60,11 +63,11 @@ class App extends React.Component {
             return when.all(employeePromises);
         }).done(employees => {
             this.setState({
-                ePage: this.page,
+                ePage: this.ePage,
                 employees: employees,
-                eAttributes: Object.keys(this.schema.properties),
+                eAttributes: Object.keys(this.eSchema.properties),
                 ePageSize: ePageSize,
-                eLinks: this.links});
+                eLinks: this.eLinks});
         });
     }
 
@@ -77,12 +80,12 @@ class App extends React.Component {
                 path: shiftCollection.entity._links.profile.href,
                 headers: {'Accept': 'application/schema+json'}
             }).then(schema => {
-                this.schema = schema.entity;
-                this.links = shiftCollection.entity._links;
+                this.sSchema = schema.entity;
+                this.sLinks = shiftCollection.entity._links;
                 return shiftCollection;
             });
         }).then(shiftCollection => {
-            this.page = shiftCollection.entity.page;
+            this.sPage = shiftCollection.entity.page;
             return shiftCollection.entity._embedded.shifts.map(shift =>
                 client({
                     method: 'GET',
@@ -92,11 +95,11 @@ class App extends React.Component {
             return when.all(shiftPromises);
         }).done(shifts => {
             this.setState({
-                sPage: this.page,
+                sPage: this.sPage,
                 shifts: shifts,
-                sAttributes: Object.keys(this.schema.properties),
+                sAttributes: Object.keys(this.sSchema.properties),
                 sPageSize: sPageSize,
-                sLinks: this.links
+                sLinks: this.sLinks
             });
         });
     }
@@ -169,8 +172,8 @@ class App extends React.Component {
 
     onNavigate(navUri) {
         client({method: 'GET', path: navUri}).then(employeeCollection => {
-            this.links = employeeCollection.entity._links;
-            this.page = employeeCollection.entity.page;
+            this.eLinks = employeeCollection.entity._links;
+            this.ePage = employeeCollection.entity.page;
             return employeeCollection.entity._embedded.employees.map(employee =>
                 client({
                     method: 'GET',
@@ -180,18 +183,18 @@ class App extends React.Component {
             return when.all(employeePromises);
         }).done(employees => {
             this.setState({
-                ePage: this.page,
+                ePage: this.ePage,
                 employees: employees,
-                eAttributes: Object.keys(this.schema.properties),
+                eAttributes: Object.keys(this.eSchema.properties),
                 ePageSize: this.state.ePageSize,
-                eLinks: this.links});
+                eLinks: this.eLinks});
         });
     }
 
     onNavigateShift(navUri) {
         client({method: 'GET', path: navUri}).then(shiftCollection => {
-            this.links = shiftCollection.entity._links;
-            this.page = shiftCollection.entity.page;
+            this.sLinks = shiftCollection.entity._links;
+            this.sPage = shiftCollection.entity.page;
             return shiftCollection.entity._embedded.shifts.map(shift =>
                 client({
                     method: 'GET',
@@ -201,11 +204,11 @@ class App extends React.Component {
             return when.all(shiftPromises);
         }).done(shifts => {
             this.setState({
-                sPage: this.page,
+                sPage: this.sPage,
                 shifts: shifts,
-                sAttributes: Object.keys(this.schema.properties),
+                sAttributes: Object.keys(this.sSchema.properties),
                 sPageSize: this.state.sPageSize,
-                sLinks: this.links});
+                sLinks: this.sLinks});
         });
     }
 
@@ -234,6 +237,19 @@ class App extends React.Component {
         })
     }
 
+    refreshAndGoToLastPageShift(message) {
+        follow(client, root, [{
+            rel: 'shifts',
+            params: {size: this.state.sPageSize}
+        }]).done(response => {
+            if (response.entity._links.last !== undefined) {
+                this.onNavigateShift(response.entity._links.last.href);
+            } else {
+                this.onNavigateShift(response.entity._links.self.href);
+            }
+        })
+    }
+
     refreshCurrentPage(message) {
         follow(client, root, [{
             rel: 'employees',
@@ -242,8 +258,8 @@ class App extends React.Component {
                 page: this.state.ePage.number
             }
         }]).then(employeeCollection => {
-            this.links = employeeCollection.entity._links;
-            this.page = employeeCollection.entity.page;
+            this.eLinks = employeeCollection.entity._links;
+            this.ePage = employeeCollection.entity.page;
 
             return employeeCollection.entity._embedded.employees.map(employee => {
                 return client({
@@ -255,11 +271,41 @@ class App extends React.Component {
             return when.all(employeePromises);
         }).then(employees => {
             this.setState({
-                ePage: this.page,
+                ePage: this.ePage,
                 employees: employees,
-                eAttributes: Object.keys(this.schema.properties),
+                eAttributes: Object.keys(this.eSchema.properties),
                 ePageSize: this.state.ePageSize,
-                eLinks: this.links
+                eLinks: this.eLinks
+            });
+        });
+    }
+
+    refreshCurrentPageShift(message) {
+        follow(client, root, [{
+            rel: 'shifts',
+            params: {
+                size: this.state.sPageSize,
+                page: this.state.sPage.number
+            }
+        }]).then(shiftCollection => {
+            this.sLinks = shiftCollection.entity._links;
+            this.sPage = shiftCollection.entity.page;
+
+            return shiftCollection.entity._embedded.shifts.map(shift => {
+                return client({
+                    method: 'GET',
+                    path: shift._links.self.href
+                })
+            });
+        }).then(shiftPromises => {
+            return when.all(shiftPromises);
+        }).then(shifts => {
+            this.setState({
+                sPage: this.sPage,
+                shifts: shifts,
+                sAttributes: Object.keys(this.sSchema.properties),
+                sPageSize: this.state.sPageSize,
+                sLinks: this.sLinks
             });
         });
     }
@@ -270,12 +316,14 @@ class App extends React.Component {
         stompClient.register([
             {route: '/topic/newEmployee', callback: this.refreshAndGoToLastPage},
             {route: '/topic/updateEmployee', callback: this.refreshCurrentPage},
-            {route: '/topic/deleteEmployee', callback: this.refreshCurrentPage}
+            {route: '/topic/deleteEmployee', callback: this.refreshCurrentPage},
+            {route: '/topic/newShift', callback: this.refreshAndGoToLastPageShift},
+            {route: '/topic/updateShift', callback: this.refreshCurrentPageShift},
+            {route: '/topic/deleteShift', callback: this.refreshCurrentPageShift}
         ]);
     }
 
     render() {
-        console.log(this.state);
         return (
             <div>
                 <CreateDialog attributes={this.state.eAttributes} onCreate={this.onCreate}/>
@@ -361,7 +409,7 @@ class UpdateEmployeeDialog extends React.Component {
             updateEmployee[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
         });
         this.props.onUpdate(this.props.employee, updateEmployee);
-        window.locatiom = '#';
+        window.location = '#';
     }
 
     render() {
@@ -400,7 +448,7 @@ class UpdateShiftDialog extends React.Component {
             updateShift[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
         });
         this.props.onUpdate(this.props.shift, updateShift);
-        window.locatiom = '#';
+        window.location = '#';
     }
 
     render() {
