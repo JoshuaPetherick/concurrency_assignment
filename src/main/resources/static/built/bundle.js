@@ -110,11 +110,11 @@
 	                    headers: { 'Accept': 'application/schema+json' }
 	                }).then(function (schema) {
 	                    _this2.eSchema = schema.entity;
-	                    _this2.eLinks = employeeCollection.entity._links;
+	                    _this2.state.eLinks = employeeCollection.entity._links;
 	                    return employeeCollection;
 	                });
 	            }).then(function (employeeCollection) {
-	                _this2.ePage = employeeCollection.entity.page;
+	                _this2.state.ePage = employeeCollection.entity.page;
 	                return employeeCollection.entity._embedded.employees.map(function (employee) {
 	                    return client({
 	                        method: 'GET',
@@ -125,11 +125,9 @@
 	                return when.all(employeePromises);
 	            }).done(function (employees) {
 	                _this2.setState({
-	                    ePage: _this2.ePage,
 	                    employees: employees,
 	                    eAttributes: Object.keys(_this2.eSchema.properties),
-	                    ePageSize: ePageSize,
-	                    eLinks: _this2.eLinks });
+	                    ePageSize: ePageSize });
 	            });
 	        }
 	    }, {
@@ -144,11 +142,11 @@
 	                    headers: { 'Accept': 'application/schema+json' }
 	                }).then(function (schema) {
 	                    _this3.sSchema = schema.entity;
-	                    _this3.sLinks = shiftCollection.entity._links;
+	                    _this3.state.sLinks = shiftCollection.entity._links;
 	                    return shiftCollection;
 	                });
 	            }).then(function (shiftCollection) {
-	                _this3.sPage = shiftCollection.entity.page;
+	                _this3.state.sPage = shiftCollection.entity.page;
 	                return shiftCollection.entity._embedded.shifts.map(function (shift) {
 	                    return client({
 	                        method: 'GET',
@@ -159,12 +157,9 @@
 	                return when.all(shiftPromises);
 	            }).done(function (shifts) {
 	                _this3.setState({
-	                    sPage: _this3.sPage,
 	                    shifts: shifts,
 	                    sAttributes: Object.keys(_this3.sSchema.properties),
-	                    sPageSize: sPageSize,
-	                    sLinks: _this3.sLinks
-	                });
+	                    sPageSize: sPageSize });
 	            });
 	        }
 	    }, {
@@ -249,8 +244,8 @@
 	            var _this6 = this;
 	
 	            client({ method: 'GET', path: navUri }).then(function (employeeCollection) {
-	                _this6.eLinks = employeeCollection.entity._links;
-	                _this6.ePage = employeeCollection.entity.page;
+	                _this6.state.eLinks = employeeCollection.entity._links;
+	                _this6.state.ePage = employeeCollection.entity.page;
 	                return employeeCollection.entity._embedded.employees.map(function (employee) {
 	                    return client({
 	                        method: 'GET',
@@ -261,11 +256,9 @@
 	                return when.all(employeePromises);
 	            }).done(function (employees) {
 	                _this6.setState({
-	                    ePage: _this6.ePage,
 	                    employees: employees,
 	                    eAttributes: Object.keys(_this6.eSchema.properties),
-	                    ePageSize: _this6.state.ePageSize,
-	                    eLinks: _this6.eLinks });
+	                    ePageSize: _this6.state.ePageSize });
 	            });
 	        }
 	    }, {
@@ -274,8 +267,8 @@
 	            var _this7 = this;
 	
 	            client({ method: 'GET', path: navUri }).then(function (shiftCollection) {
-	                _this7.sLinks = shiftCollection.entity._links;
-	                _this7.sPage = shiftCollection.entity.page;
+	                _this7.state.sLinks = shiftCollection.entity._links;
+	                _this7.state.sPage = shiftCollection.entity.page;
 	                return shiftCollection.entity._embedded.shifts.map(function (shift) {
 	                    return client({
 	                        method: 'GET',
@@ -286,11 +279,9 @@
 	                return when.all(shiftPromises);
 	            }).done(function (shifts) {
 	                _this7.setState({
-	                    sPage: _this7.sPage,
 	                    shifts: shifts,
 	                    sAttributes: Object.keys(_this7.sSchema.properties),
-	                    sPageSize: _this7.state.sPageSize,
-	                    sLinks: _this7.sLinks });
+	                    sPageSize: _this7.state.sPageSize });
 	            });
 	        }
 	    }, {
@@ -351,8 +342,8 @@
 	                    page: this.state.ePage.number
 	                }
 	            }]).then(function (employeeCollection) {
-	                _this10.eLinks = employeeCollection.entity._links;
-	                _this10.ePage = employeeCollection.entity.page;
+	                _this10.state.eLinks = employeeCollection.entity._links;
+	                _this10.state.ePage = employeeCollection.entity.page;
 	
 	                return employeeCollection.entity._embedded.employees.map(function (employee) {
 	                    return client({
@@ -364,12 +355,9 @@
 	                return when.all(employeePromises);
 	            }).then(function (employees) {
 	                _this10.setState({
-	                    ePage: _this10.ePage,
 	                    employees: employees,
 	                    eAttributes: Object.keys(_this10.eSchema.properties),
-	                    ePageSize: _this10.state.ePageSize,
-	                    eLinks: _this10.eLinks
-	                });
+	                    ePageSize: _this10.state.ePageSize });
 	            });
 	        }
 	    }, {
@@ -384,8 +372,8 @@
 	                    page: this.state.sPage.number
 	                }
 	            }]).then(function (shiftCollection) {
-	                _this11.sLinks = shiftCollection.entity._links;
-	                _this11.sPage = shiftCollection.entity.page;
+	                _this11.state.sLinks = shiftCollection.entity._links;
+	                _this11.state.sPage = shiftCollection.entity.page;
 	
 	                return shiftCollection.entity._embedded.shifts.map(function (shift) {
 	                    return client({
@@ -397,12 +385,9 @@
 	                return when.all(shiftPromises);
 	            }).then(function (shifts) {
 	                _this11.setState({
-	                    sPage: _this11.sPage,
 	                    shifts: shifts,
 	                    sAttributes: Object.keys(_this11.sSchema.properties),
-	                    sPageSize: _this11.state.sPageSize,
-	                    sLinks: _this11.sLinks
-	                });
+	                    sPageSize: _this11.state.sPageSize });
 	            });
 	        }
 	    }, {
@@ -418,9 +403,9 @@
 	            return React.createElement(
 	                'div',
 	                null,
-	                React.createElement(CreateDialog, { attributes: this.state.eAttributes, onCreate: this.onCreate }),
-	                React.createElement(EmployeeList, { page: this.state.ePage,
-	                    employees: this.state.employees,
+	                React.createElement(RecordList, { type: 'Employees',
+	                    page: this.state.ePage,
+	                    records: this.state.employees,
 	                    links: this.state.eLinks,
 	                    pageSize: this.state.ePageSize,
 	                    attributes: this.state.eAttributes,
@@ -428,15 +413,18 @@
 	                    onUpdate: this.onUpdate,
 	                    onDelete: this.onDelete,
 	                    updatePageSize: this.updatePageSize }),
-	                React.createElement(ShiftList, { page: this.state.sPage,
-	                    shifts: this.state.shifts,
+	                React.createElement(CreateDialog, { type: 'Employees', attributes: this.state.eAttributes, onCreate: this.onCreate }),
+	                React.createElement(RecordList, { type: 'Shifts',
+	                    page: this.state.sPage,
+	                    records: this.state.shifts,
 	                    links: this.state.sLinks,
 	                    pageSize: this.state.sPageSize,
 	                    attributes: this.state.sAttributes,
 	                    onNavigate: this.onNavigateShift,
 	                    onUpdate: this.onUpdateShift,
 	                    onDelete: this.onDeleteShift,
-	                    updatePageSize: this.updateShiftPageSize })
+	                    updatePageSize: this.updateShiftPageSize }),
+	                React.createElement(CreateDialog, { type: 'Shifts', attributes: this.state.sAttributes, onCreate: this.onCreateShift })
 	            );
 	        }
 	    }]);
@@ -462,11 +450,11 @@
 	            var _this13 = this;
 	
 	            e.preventDefault();
-	            var newEmployee = {};
+	            var newRecord = {};
 	            this.props.attributes.forEach(function (attribute) {
-	                newEmployee[attribute] = ReactDOM.findDOMNode(_this13.refs[attribute]).value.trim();
+	                newRecord[attribute] = ReactDOM.findDOMNode(_this13.refs[attribute]).value.trim();
 	            });
-	            this.props.onCreate(newEmployee);
+	            this.props.onCreate(newRecord);
 	            this.props.attributes.forEach(function (attribute) {
 	                ReactDOM.findDOMNode(_this13.refs[attribute]).value = '';
 	            });
@@ -488,12 +476,13 @@
 	                null,
 	                React.createElement(
 	                    'a',
-	                    { href: '#createEmployee' },
-	                    'Create'
+	                    { href: "#create" + this.props.type },
+	                    'Create new ',
+	                    this.props.type
 	                ),
 	                React.createElement(
 	                    'div',
-	                    { id: 'createEmployee', className: 'modalDialog' },
+	                    { id: "create" + this.props.type, className: 'modalDialog' },
 	                    React.createElement(
 	                        'div',
 	                        null,
@@ -505,7 +494,8 @@
 	                        React.createElement(
 	                            'h2',
 	                            null,
-	                            'Create new employee'
+	                            'Create new ',
+	                            this.props.type
 	                        ),
 	                        React.createElement(
 	                            'form',
@@ -526,29 +516,29 @@
 	    return CreateDialog;
 	}(React.Component);
 	
-	var UpdateEmployeeDialog = function (_React$Component3) {
-	    _inherits(UpdateEmployeeDialog, _React$Component3);
+	var UpdateDialog = function (_React$Component3) {
+	    _inherits(UpdateDialog, _React$Component3);
 	
-	    function UpdateEmployeeDialog(props) {
-	        _classCallCheck(this, UpdateEmployeeDialog);
+	    function UpdateDialog(props) {
+	        _classCallCheck(this, UpdateDialog);
 	
-	        var _this14 = _possibleConstructorReturn(this, (UpdateEmployeeDialog.__proto__ || Object.getPrototypeOf(UpdateEmployeeDialog)).call(this, props));
+	        var _this14 = _possibleConstructorReturn(this, (UpdateDialog.__proto__ || Object.getPrototypeOf(UpdateDialog)).call(this, props));
 	
 	        _this14.handleSubmit = _this14.handleSubmit.bind(_this14);
 	        return _this14;
 	    }
 	
-	    _createClass(UpdateEmployeeDialog, [{
+	    _createClass(UpdateDialog, [{
 	        key: 'handleSubmit',
 	        value: function handleSubmit(e) {
 	            var _this15 = this;
 	
 	            e.preventDefault();
-	            var updateEmployee = {};
+	            var updateRecord = {};
 	            this.props.attributes.forEach(function (attribute) {
-	                updateEmployee[attribute] = ReactDOM.findDOMNode(_this15.refs[attribute]).value.trim();
+	                updateRecord[attribute] = ReactDOM.findDOMNode(_this15.refs[attribute]).value.trim();
 	            });
-	            this.props.onUpdate(this.props.employee, updateEmployee);
+	            this.props.onUpdate(this.props.record, updateRecord);
 	            window.location = '#';
 	        }
 	    }, {
@@ -559,14 +549,14 @@
 	            var inputs = this.props.attributes.map(function (attribute) {
 	                return React.createElement(
 	                    'p',
-	                    { key: _this16.props.employee.entity[attribute] },
-	                    React.createElement('input', { type: 'text', placeholder: attribute, defaultValue: _this16.props.employee.entity[attribute], ref: attribute, className: 'field' })
+	                    { key: _this16.props.record.entity[attribute] },
+	                    React.createElement('input', { type: 'text', placeholder: attribute, defaultValue: _this16.props.record.entity[attribute], ref: attribute, className: 'field' })
 	                );
 	            });
-	            var dialogID = "updateEmployee-" + this.props.employee.entity._links.self.href;
+	            var dialogID = "update" + this.props.type + "-" + this.props.record.entity._links.self.href;
 	            return React.createElement(
 	                'div',
-	                { key: this.props.employee.entity._links.self.href },
+	                { key: this.props.record.entity._links.self.href },
 	                React.createElement(
 	                    'a',
 	                    { href: "#" + dialogID },
@@ -586,7 +576,8 @@
 	                        React.createElement(
 	                            'h2',
 	                            null,
-	                            'Update an employee'
+	                            'Update a ',
+	                            this.props.type
 	                        ),
 	                        React.createElement(
 	                            'form',
@@ -606,306 +597,7 @@
 	        }
 	    }]);
 	
-	    return UpdateEmployeeDialog;
-	}(React.Component);
-	
-	var UpdateShiftDialog = function (_React$Component4) {
-	    _inherits(UpdateShiftDialog, _React$Component4);
-	
-	    function UpdateShiftDialog(props) {
-	        _classCallCheck(this, UpdateShiftDialog);
-	
-	        var _this17 = _possibleConstructorReturn(this, (UpdateShiftDialog.__proto__ || Object.getPrototypeOf(UpdateShiftDialog)).call(this, props));
-	
-	        _this17.handleSubmit = _this17.handleSubmit.bind(_this17);
-	        return _this17;
-	    }
-	
-	    _createClass(UpdateShiftDialog, [{
-	        key: 'handleSubmit',
-	        value: function handleSubmit(e) {
-	            var _this18 = this;
-	
-	            e.preventDefault();
-	            var updateShift = {};
-	            this.props.attributes.forEach(function (attribute) {
-	                updateShift[attribute] = ReactDOM.findDOMNode(_this18.refs[attribute]).value.trim();
-	            });
-	            this.props.onUpdate(this.props.shift, updateShift);
-	            window.location = '#';
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _this19 = this;
-	
-	            var inputs = this.props.attributes.map(function (attribute) {
-	                return React.createElement(
-	                    'p',
-	                    { key: _this19.props.shift.entity[attribute] },
-	                    React.createElement('input', { type: 'text', placeholder: attribute, defaultValue: _this19.props.shift.entity[attribute], ref: attribute, className: 'field' })
-	                );
-	            });
-	            var dialogID = "updateShift-" + this.props.shift.entity._links.self.href;
-	            return React.createElement(
-	                'div',
-	                { key: this.props.shift.entity._links.self.href },
-	                React.createElement(
-	                    'a',
-	                    { href: "#" + dialogID },
-	                    'Update'
-	                ),
-	                React.createElement(
-	                    'div',
-	                    { id: dialogID, className: 'modalDialog' },
-	                    React.createElement(
-	                        'div',
-	                        null,
-	                        React.createElement(
-	                            'a',
-	                            { href: '#', title: 'Close', className: 'close' },
-	                            'X'
-	                        ),
-	                        React.createElement(
-	                            'h2',
-	                            null,
-	                            'Update a shift'
-	                        ),
-	                        React.createElement(
-	                            'form',
-	                            null,
-	                            ' ',
-	                            inputs,
-	                            ' ',
-	                            React.createElement(
-	                                'button',
-	                                { onClick: this.handleSubmit },
-	                                'Update'
-	                            )
-	                        )
-	                    )
-	                )
-	            );
-	        }
-	    }]);
-	
-	    return UpdateShiftDialog;
-	}(React.Component);
-	
-	/*
-	    Handles entire table
-	 */
-	
-	
-	var EmployeeList = function (_React$Component5) {
-	    _inherits(EmployeeList, _React$Component5);
-	
-	    function EmployeeList(props) {
-	        _classCallCheck(this, EmployeeList);
-	
-	        var _this20 = _possibleConstructorReturn(this, (EmployeeList.__proto__ || Object.getPrototypeOf(EmployeeList)).call(this, props));
-	
-	        _this20.handleNavFirst = _this20.handleNavFirst.bind(_this20);
-	        _this20.handleNavPrev = _this20.handleNavPrev.bind(_this20);
-	        _this20.handleNavNext = _this20.handleNavNext.bind(_this20);
-	        _this20.handleNavLast = _this20.handleNavLast.bind(_this20);
-	        _this20.handleInput = _this20.handleInput.bind(_this20);
-	        return _this20;
-	    }
-	
-	    _createClass(EmployeeList, [{
-	        key: 'handleInput',
-	        value: function handleInput(e) {
-	            e.preventDefault();
-	            var pageSize = ReactDOM.findDOMNode(this.refs.pageSize).value;
-	            if (/^[0-9]+$/.test(pageSize)) {
-	                this.props.updatePageSize(pageSize);
-	            } else {
-	                ReactDOM.findDOMNode(this.refs.pageSize).value = pageSize.substring(0, pageSize.length - 1);
-	            }
-	        }
-	    }, {
-	        key: 'handleNavFirst',
-	        value: function handleNavFirst(e) {
-	            e.preventDefault();
-	            this.props.onNavigate(this.props.links.first.href);
-	        }
-	    }, {
-	        key: 'handleNavPrev',
-	        value: function handleNavPrev(e) {
-	            e.preventDefault();
-	            this.props.onNavigate(this.props.links.prev.href);
-	        }
-	    }, {
-	        key: 'handleNavNext',
-	        value: function handleNavNext(e) {
-	            e.preventDefault();
-	            this.props.onNavigate(this.props.links.next.href);
-	        }
-	    }, {
-	        key: 'handleNavLast',
-	        value: function handleNavLast(e) {
-	            e.preventDefault();
-	            this.props.onNavigate(this.props.links.last.href);
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _this21 = this;
-	
-	            var pageInfo = this.props.page.hasOwnProperty("number") ? React.createElement(
-	                'h3',
-	                null,
-	                'Employees - Page ',
-	                this.props.page.number + 1,
-	                ' of ',
-	                this.props.page.totalPages
-	            ) : null;
-	
-	            var employees = this.props.employees.map(function (employee) {
-	                return React.createElement(Employee, { key: employee.entity._links.self.href, employee: employee, attributes: _this21.props.attributes,
-	                    onUpdate: _this21.props.onUpdate, onDelete: _this21.props.onDelete });
-	            });
-	
-	            var navLinks = [];
-	            if ("first" in this.props.links) {
-	                navLinks.push(React.createElement(
-	                    'button',
-	                    { key: 'first', onClick: this.handleNavFirst },
-	                    '<<'
-	                ));
-	            }
-	            if ("prev" in this.props.links) {
-	                navLinks.push(React.createElement(
-	                    'button',
-	                    { key: 'prev', onClick: this.handleNavPrev },
-	                    '<'
-	                ));
-	            }
-	            if ("next" in this.props.links) {
-	                navLinks.push(React.createElement(
-	                    'button',
-	                    { key: 'next', onClick: this.handleNavNext },
-	                    '>'
-	                ));
-	            }
-	            if ("last" in this.props.links) {
-	                navLinks.push(React.createElement(
-	                    'button',
-	                    { key: 'last', onClick: this.handleNavLast },
-	                    '>>'
-	                ));
-	            }
-	
-	            return React.createElement(
-	                'div',
-	                null,
-	                pageInfo,
-	                React.createElement('input', { ref: 'pageSize', defaultValue: this.props.pageSize, onInput: this.handleInput }),
-	                React.createElement(
-	                    'table',
-	                    null,
-	                    React.createElement(
-	                        'tbody',
-	                        null,
-	                        React.createElement(
-	                            'tr',
-	                            null,
-	                            React.createElement(
-	                                'th',
-	                                null,
-	                                'First Name'
-	                            ),
-	                            React.createElement(
-	                                'th',
-	                                null,
-	                                'Last Name'
-	                            ),
-	                            React.createElement(
-	                                'th',
-	                                null,
-	                                'Description'
-	                            ),
-	                            React.createElement('th', null),
-	                            React.createElement('th', null)
-	                        ),
-	                        employees
-	                    )
-	                ),
-	                React.createElement(
-	                    'div',
-	                    null,
-	                    navLinks
-	                )
-	            );
-	        }
-	    }]);
-	
-	    return EmployeeList;
-	}(React.Component);
-	
-	/*
-	    Handles individual employee records in the table
-	 */
-	
-	
-	var Employee = function (_React$Component6) {
-	    _inherits(Employee, _React$Component6);
-	
-	    function Employee(props) {
-	        _classCallCheck(this, Employee);
-	
-	        var _this22 = _possibleConstructorReturn(this, (Employee.__proto__ || Object.getPrototypeOf(Employee)).call(this, props));
-	
-	        _this22.handleDelete = _this22.handleDelete.bind(_this22);
-	        return _this22;
-	    }
-	
-	    _createClass(Employee, [{
-	        key: 'handleDelete',
-	        value: function handleDelete() {
-	            this.props.onDelete(this.props.employee);
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            return React.createElement(
-	                'tr',
-	                null,
-	                React.createElement(
-	                    'td',
-	                    null,
-	                    this.props.employee.entity.firstName
-	                ),
-	                React.createElement(
-	                    'td',
-	                    null,
-	                    this.props.employee.entity.lastName
-	                ),
-	                React.createElement(
-	                    'td',
-	                    null,
-	                    this.props.employee.entity.description
-	                ),
-	                React.createElement(
-	                    'td',
-	                    null,
-	                    React.createElement(UpdateEmployeeDialog, { employee: this.props.employee, attributes: this.props.attributes, onUpdate: this.props.onUpdate })
-	                ),
-	                React.createElement(
-	                    'td',
-	                    null,
-	                    React.createElement(
-	                        'button',
-	                        { onClick: this.handleDelete },
-	                        'Delete'
-	                    )
-	                )
-	            );
-	        }
-	    }]);
-	
-	    return Employee;
+	    return UpdateDialog;
 	}(React.Component);
 	
 	/*
@@ -913,23 +605,23 @@
 	 */
 	
 	
-	var ShiftList = function (_React$Component7) {
-	    _inherits(ShiftList, _React$Component7);
+	var RecordList = function (_React$Component4) {
+	    _inherits(RecordList, _React$Component4);
 	
-	    function ShiftList(props) {
-	        _classCallCheck(this, ShiftList);
+	    function RecordList(props) {
+	        _classCallCheck(this, RecordList);
 	
-	        var _this23 = _possibleConstructorReturn(this, (ShiftList.__proto__ || Object.getPrototypeOf(ShiftList)).call(this, props));
+	        var _this17 = _possibleConstructorReturn(this, (RecordList.__proto__ || Object.getPrototypeOf(RecordList)).call(this, props));
 	
-	        _this23.handleNavFirst = _this23.handleNavFirst.bind(_this23);
-	        _this23.handleNavPrev = _this23.handleNavPrev.bind(_this23);
-	        _this23.handleNavNext = _this23.handleNavNext.bind(_this23);
-	        _this23.handleNavLast = _this23.handleNavLast.bind(_this23);
-	        _this23.handleInput = _this23.handleInput.bind(_this23);
-	        return _this23;
+	        _this17.handleNavFirst = _this17.handleNavFirst.bind(_this17);
+	        _this17.handleNavPrev = _this17.handleNavPrev.bind(_this17);
+	        _this17.handleNavNext = _this17.handleNavNext.bind(_this17);
+	        _this17.handleNavLast = _this17.handleNavLast.bind(_this17);
+	        _this17.handleInput = _this17.handleInput.bind(_this17);
+	        return _this17;
 	    }
 	
-	    _createClass(ShiftList, [{
+	    _createClass(RecordList, [{
 	        key: 'handleInput',
 	        value: function handleInput(e) {
 	            e.preventDefault();
@@ -967,20 +659,21 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this24 = this;
+	            var _this18 = this;
 	
 	            var pageInfo = this.props.page.hasOwnProperty("number") ? React.createElement(
 	                'h3',
 	                null,
-	                'Shifts - Page ',
+	                this.props.type,
+	                ' - Page ',
 	                this.props.page.number + 1,
 	                ' of ',
 	                this.props.page.totalPages
 	            ) : null;
 	
-	            var shifts = this.props.shifts.map(function (shift) {
-	                return React.createElement(Shift, { key: shift.entity._links.self.href, shift: shift, attributes: _this24.props.attributes,
-	                    onUpdate: _this24.props.onUpdate, onDelete: _this24.props.onDelete });
+	            var records = this.props.records.map(function (record) {
+	                return React.createElement(Record, { key: record.entity._links.self.href, record: record, attributes: _this18.props.attributes,
+	                    onUpdate: _this18.props.onUpdate, onDelete: _this18.props.onDelete, type: _this18.props.type });
 	            });
 	
 	            var navLinks = [];
@@ -1013,6 +706,22 @@
 	                ));
 	            }
 	
+	            var headers = [];
+	            for (var i = 0; i < this.props.attributes.length; i++) {
+	                // Replace uses Regex to replace first character of space with Capital letter
+	                headers.push(React.createElement(
+	                    'td',
+	                    { key: i },
+	                    React.createElement(
+	                        'b',
+	                        null,
+	                        this.props.attributes[i].replace(/\b\w/g, function (l) {
+	                            return l.toUpperCase();
+	                        })
+	                    )
+	                ));
+	            }
+	
 	            return React.createElement(
 	                'div',
 	                null,
@@ -1027,25 +736,11 @@
 	                        React.createElement(
 	                            'tr',
 	                            null,
-	                            React.createElement(
-	                                'th',
-	                                null,
-	                                'Description'
-	                            ),
-	                            React.createElement(
-	                                'th',
-	                                null,
-	                                'Day/Time'
-	                            ),
-	                            React.createElement(
-	                                'th',
-	                                null,
-	                                'EmployeeID'
-	                            ),
+	                            headers,
 	                            React.createElement('th', null),
 	                            React.createElement('th', null)
 	                        ),
-	                        shifts
+	                        records
 	                    )
 	                ),
 	                React.createElement(
@@ -1057,56 +752,51 @@
 	        }
 	    }]);
 	
-	    return ShiftList;
+	    return RecordList;
 	}(React.Component);
 	
 	/*
-	 Handles individual shift records in the table
+	    Handles individual records
 	 */
 	
 	
-	var Shift = function (_React$Component8) {
-	    _inherits(Shift, _React$Component8);
+	var Record = function (_React$Component5) {
+	    _inherits(Record, _React$Component5);
 	
-	    function Shift(props) {
-	        _classCallCheck(this, Shift);
+	    function Record(props) {
+	        _classCallCheck(this, Record);
 	
-	        var _this25 = _possibleConstructorReturn(this, (Shift.__proto__ || Object.getPrototypeOf(Shift)).call(this, props));
+	        var _this19 = _possibleConstructorReturn(this, (Record.__proto__ || Object.getPrototypeOf(Record)).call(this, props));
 	
-	        _this25.handleDelete = _this25.handleDelete.bind(_this25);
-	        return _this25;
+	        _this19.handleDelete = _this19.handleDelete.bind(_this19);
+	        return _this19;
 	    }
 	
-	    _createClass(Shift, [{
+	    _createClass(Record, [{
 	        key: 'handleDelete',
 	        value: function handleDelete() {
-	            this.props.onDelete(this.props.shift);
+	            this.props.onDelete(this.props.record);
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var values = [];
+	            for (var i = 0; i < this.props.attributes.length; i++) {
+	                values.push(React.createElement(
+	                    'td',
+	                    { key: i },
+	                    this.props.record.entity[this.props.attributes[i]]
+	                ));
+	            }
+	
 	            return React.createElement(
 	                'tr',
 	                null,
+	                values,
 	                React.createElement(
 	                    'td',
 	                    null,
-	                    this.props.shift.entity.description
-	                ),
-	                React.createElement(
-	                    'td',
-	                    null,
-	                    this.props.shift.entity.day
-	                ),
-	                React.createElement(
-	                    'td',
-	                    null,
-	                    this.props.shift.entity.employeeId
-	                ),
-	                React.createElement(
-	                    'td',
-	                    null,
-	                    React.createElement(UpdateShiftDialog, { shift: this.props.shift, attributes: this.props.attributes, onUpdate: this.props.onUpdate })
+	                    React.createElement(UpdateDialog, { record: this.props.record, type: this.props.type, attributes: this.props.attributes, onUpdate: this.props.onUpdate })
 	                ),
 	                React.createElement(
 	                    'td',
@@ -1121,11 +811,8 @@
 	        }
 	    }]);
 	
-	    return Shift;
+	    return Record;
 	}(React.Component);
-	/*
-	
-	 */
 	
 	ReactDOM.render(React.createElement(App, null), document.getElementById('react'));
 

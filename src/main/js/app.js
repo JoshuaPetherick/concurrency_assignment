@@ -49,11 +49,11 @@ class App extends React.Component {
                 headers: {'Accept': 'application/schema+json'}
             }).then(schema => {
                 this.eSchema = schema.entity;
-                this.eLinks = employeeCollection.entity._links;
+                this.state.eLinks = employeeCollection.entity._links;
                 return employeeCollection;
             });
         }).then(employeeCollection => {
-            this.ePage = employeeCollection.entity.page;
+            this.state.ePage = employeeCollection.entity.page;
             return employeeCollection.entity._embedded.employees.map(employee =>
             client({
                 method: 'GET',
@@ -63,11 +63,9 @@ class App extends React.Component {
             return when.all(employeePromises);
         }).done(employees => {
             this.setState({
-                ePage: this.ePage,
                 employees: employees,
                 eAttributes: Object.keys(this.eSchema.properties),
-                ePageSize: ePageSize,
-                eLinks: this.eLinks});
+                ePageSize: ePageSize});
         });
     }
 
@@ -81,11 +79,11 @@ class App extends React.Component {
                 headers: {'Accept': 'application/schema+json'}
             }).then(schema => {
                 this.sSchema = schema.entity;
-                this.sLinks = shiftCollection.entity._links;
+                this.state.sLinks = shiftCollection.entity._links;
                 return shiftCollection;
             });
         }).then(shiftCollection => {
-            this.sPage = shiftCollection.entity.page;
+            this.state.sPage = shiftCollection.entity.page;
             return shiftCollection.entity._embedded.shifts.map(shift =>
                 client({
                     method: 'GET',
@@ -95,12 +93,9 @@ class App extends React.Component {
             return when.all(shiftPromises);
         }).done(shifts => {
             this.setState({
-                sPage: this.sPage,
                 shifts: shifts,
                 sAttributes: Object.keys(this.sSchema.properties),
-                sPageSize: sPageSize,
-                sLinks: this.sLinks
-            });
+                sPageSize: sPageSize});
         });
     }
 
@@ -172,8 +167,8 @@ class App extends React.Component {
 
     onNavigate(navUri) {
         client({method: 'GET', path: navUri}).then(employeeCollection => {
-            this.eLinks = employeeCollection.entity._links;
-            this.ePage = employeeCollection.entity.page;
+            this.state.eLinks = employeeCollection.entity._links;
+            this.state.ePage = employeeCollection.entity.page;
             return employeeCollection.entity._embedded.employees.map(employee =>
                 client({
                     method: 'GET',
@@ -183,18 +178,16 @@ class App extends React.Component {
             return when.all(employeePromises);
         }).done(employees => {
             this.setState({
-                ePage: this.ePage,
                 employees: employees,
                 eAttributes: Object.keys(this.eSchema.properties),
-                ePageSize: this.state.ePageSize,
-                eLinks: this.eLinks});
+                ePageSize: this.state.ePageSize});
         });
     }
 
     onNavigateShift(navUri) {
         client({method: 'GET', path: navUri}).then(shiftCollection => {
-            this.sLinks = shiftCollection.entity._links;
-            this.sPage = shiftCollection.entity.page;
+            this.state.sLinks = shiftCollection.entity._links;
+            this.state.sPage = shiftCollection.entity.page;
             return shiftCollection.entity._embedded.shifts.map(shift =>
                 client({
                     method: 'GET',
@@ -204,11 +197,9 @@ class App extends React.Component {
             return when.all(shiftPromises);
         }).done(shifts => {
             this.setState({
-                sPage: this.sPage,
                 shifts: shifts,
                 sAttributes: Object.keys(this.sSchema.properties),
-                sPageSize: this.state.sPageSize,
-                sLinks: this.sLinks});
+                sPageSize: this.state.sPageSize});
         });
     }
 
@@ -258,8 +249,8 @@ class App extends React.Component {
                 page: this.state.ePage.number
             }
         }]).then(employeeCollection => {
-            this.eLinks = employeeCollection.entity._links;
-            this.ePage = employeeCollection.entity.page;
+            this.state.eLinks = employeeCollection.entity._links;
+            this.state.ePage = employeeCollection.entity.page;
 
             return employeeCollection.entity._embedded.employees.map(employee => {
                 return client({
@@ -271,12 +262,9 @@ class App extends React.Component {
             return when.all(employeePromises);
         }).then(employees => {
             this.setState({
-                ePage: this.ePage,
                 employees: employees,
                 eAttributes: Object.keys(this.eSchema.properties),
-                ePageSize: this.state.ePageSize,
-                eLinks: this.eLinks
-            });
+                ePageSize: this.state.ePageSize});
         });
     }
 
@@ -288,8 +276,8 @@ class App extends React.Component {
                 page: this.state.sPage.number
             }
         }]).then(shiftCollection => {
-            this.sLinks = shiftCollection.entity._links;
-            this.sPage = shiftCollection.entity.page;
+            this.state.sLinks = shiftCollection.entity._links;
+            this.state.sPage = shiftCollection.entity.page;
 
             return shiftCollection.entity._embedded.shifts.map(shift => {
                 return client({
@@ -301,12 +289,9 @@ class App extends React.Component {
             return when.all(shiftPromises);
         }).then(shifts => {
             this.setState({
-                sPage: this.sPage,
                 shifts: shifts,
                 sAttributes: Object.keys(this.sSchema.properties),
-                sPageSize: this.state.sPageSize,
-                sLinks: this.sLinks
-            });
+                sPageSize: this.state.sPageSize});
         });
     }
 
@@ -326,25 +311,28 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <CreateDialog attributes={this.state.eAttributes} onCreate={this.onCreate}/>
-                <EmployeeList page={this.state.ePage}
-                              employees={this.state.employees}
-                              links={this.state.eLinks}
-                              pageSize={this.state.ePageSize}
-                              attributes={this.state.eAttributes}
-                              onNavigate={this.onNavigate}
-                              onUpdate={this.onUpdate}
-                              onDelete={this.onDelete}
-                              updatePageSize={this.updatePageSize}/>
-                <ShiftList page={this.state.sPage}
-                           shifts={this.state.shifts}
-                           links={this.state.sLinks}
-                           pageSize={this.state.sPageSize}
-                           attributes={this.state.sAttributes}
-                           onNavigate={this.onNavigateShift}
-                           onUpdate={this.onUpdateShift}
-                           onDelete={this.onDeleteShift}
-                           updatePageSize={this.updateShiftPageSize}/>
+                <RecordList type="Employees"
+                            page={this.state.ePage}
+                            records={this.state.employees}
+                            links={this.state.eLinks}
+                            pageSize={this.state.ePageSize}
+                            attributes={this.state.eAttributes}
+                            onNavigate={this.onNavigate}
+                            onUpdate={this.onUpdate}
+                            onDelete={this.onDelete}
+                            updatePageSize={this.updatePageSize}/>
+                <CreateDialog type="Employees" attributes={this.state.eAttributes} onCreate={this.onCreate}/>
+                <RecordList type="Shifts"
+                            page={this.state.sPage}
+                            records={this.state.shifts}
+                            links={this.state.sLinks}
+                            pageSize={this.state.sPageSize}
+                            attributes={this.state.sAttributes}
+                            onNavigate={this.onNavigateShift}
+                            onUpdate={this.onUpdateShift}
+                            onDelete={this.onDeleteShift}
+                            updatePageSize={this.updateShiftPageSize}/>
+                <CreateDialog type="Shifts" attributes={this.state.sAttributes} onCreate={this.onCreateShift}/>
             </div>
         )
     }
@@ -359,11 +347,11 @@ class CreateDialog extends React.Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        var newEmployee = {};
+        var newRecord = {};
         this.props.attributes.forEach(attribute => {
-            newEmployee[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
+            newRecord[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
         });
-        this.props.onCreate(newEmployee);
+        this.props.onCreate(newRecord);
         this.props.attributes.forEach(attribute => {
             ReactDOM.findDOMNode(this.refs[attribute]).value = '';
         });
@@ -379,11 +367,11 @@ class CreateDialog extends React.Component {
 
         return (
             <div>
-                <a href="#createEmployee">Create</a>
-                <div id="createEmployee" className="modalDialog">
+                <a href={"#create"+this.props.type}>Create new {this.props.type}</a>
+                <div id={"create"+this.props.type} className="modalDialog">
                     <div>
                         <a href="#" title="Close" className="close">X</a>
-                        <h2>Create new employee</h2>
+                        <h2>Create new {this.props.type}</h2>
                         <form>
                             {inputs}
                             <button onClick={this.handleSubmit}>Create</button>
@@ -395,7 +383,7 @@ class CreateDialog extends React.Component {
     }
 }
 
-class UpdateEmployeeDialog extends React.Component {
+class UpdateDialog extends React.Component {
 
     constructor(props) {
         super(props);
@@ -404,202 +392,40 @@ class UpdateEmployeeDialog extends React.Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        var updateEmployee = {};
+        var updateRecord = {};
         this.props.attributes.forEach(attribute => {
-            updateEmployee[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
+            updateRecord[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
         });
-        this.props.onUpdate(this.props.employee, updateEmployee);
+        this.props.onUpdate(this.props.record, updateRecord);
         window.location = '#';
     }
 
     render() {
         var inputs = this.props.attributes.map(attribute =>
-            <p key={this.props.employee.entity[attribute]}>
-                <input type="text" placeholder={attribute} defaultValue={this.props.employee.entity[attribute]} ref={attribute} className="field" />
+            <p key={this.props.record.entity[attribute]}>
+                <input type="text" placeholder={attribute} defaultValue={this.props.record.entity[attribute]} ref={attribute} className="field" />
             </p>);
-        var dialogID = "updateEmployee-" + this.props.employee.entity._links.self.href;
+        var dialogID = "update" + this.props.type + "-" + this.props.record.entity._links.self.href;
         return (
-            <div key={this.props.employee.entity._links.self.href}>
+            <div key={this.props.record.entity._links.self.href}>
                 <a href={"#" + dialogID}>Update</a>
                 <div id={dialogID} className="modalDialog">
                     <div>
                         <a href="#" title="Close" className="close">X</a>
-                        <h2>Update an employee</h2>
+                        <h2>Update a {this.props.type}</h2>
                         <form> {inputs} <button onClick={this.handleSubmit}>Update</button>
                         </form>
                     </div>
                 </div>
             </div>
         );
-    }
-}
-
-class UpdateShiftDialog extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.handleSubmit = this.handleSubmit.bind(this);
-    }
-
-    handleSubmit(e) {
-        e.preventDefault();
-        var updateShift = {};
-        this.props.attributes.forEach(attribute => {
-            updateShift[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
-        });
-        this.props.onUpdate(this.props.shift, updateShift);
-        window.location = '#';
-    }
-
-    render() {
-        var inputs = this.props.attributes.map(attribute =>
-            <p key={this.props.shift.entity[attribute]}>
-                <input type="text" placeholder={attribute} defaultValue={this.props.shift.entity[attribute]} ref={attribute} className="field" />
-            </p>);
-        var dialogID = "updateShift-" + this.props.shift.entity._links.self.href;
-        return (
-            <div key={this.props.shift.entity._links.self.href}>
-                <a href={"#" + dialogID}>Update</a>
-                <div id={dialogID} className="modalDialog">
-                    <div>
-                        <a href="#" title="Close" className="close">X</a>
-                        <h2>Update a shift</h2>
-                        <form> {inputs} <button onClick={this.handleSubmit}>Update</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-}
-
-/*
-    Handles entire table
- */
-class EmployeeList extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.handleNavFirst = this.handleNavFirst.bind(this);
-        this.handleNavPrev = this.handleNavPrev.bind(this);
-        this.handleNavNext = this.handleNavNext.bind(this);
-        this.handleNavLast = this.handleNavLast.bind(this);
-        this.handleInput = this.handleInput.bind(this);
-    }
-
-    handleInput(e) {
-        e.preventDefault();
-        var pageSize = ReactDOM.findDOMNode(this.refs.pageSize).value;
-        if (/^[0-9]+$/.test(pageSize)) {
-            this.props.updatePageSize(pageSize);
-        } else {
-            ReactDOM.findDOMNode(this.refs.pageSize).value =
-                pageSize.substring(0, pageSize.length - 1);
-        }
-    }
-
-    handleNavFirst(e){
-        e.preventDefault();
-        this.props.onNavigate(this.props.links.first.href);
-    }
-
-    handleNavPrev(e) {
-        e.preventDefault();
-        this.props.onNavigate(this.props.links.prev.href);
-    }
-
-    handleNavNext(e) {
-        e.preventDefault();
-        this.props.onNavigate(this.props.links.next.href);
-    }
-
-    handleNavLast(e) {
-        e.preventDefault();
-        this.props.onNavigate(this.props.links.last.href);
-    }
-
-    render() {
-        var pageInfo = this.props.page.hasOwnProperty("number") ?
-            <h3>Employees - Page {this.props.page.number + 1} of {this.props.page.totalPages}</h3> : null;
-
-        var employees = this.props.employees.map(employee =>
-            <Employee key={employee.entity._links.self.href} employee={employee} attributes={this.props.attributes}
-                      onUpdate={this.props.onUpdate} onDelete={this.props.onDelete}/>
-        );
-
-        var navLinks = [];
-        if ("first" in this.props.links) {
-            navLinks.push(<button key="first" onClick={this.handleNavFirst}>&lt;&lt;</button>);
-        }
-        if ("prev" in this.props.links) {
-            navLinks.push(<button key="prev" onClick={this.handleNavPrev}>&lt;</button>);
-        }
-        if ("next" in this.props.links) {
-            navLinks.push(<button key="next" onClick={this.handleNavNext}>&gt;</button>);
-        }
-        if ("last" in this.props.links) {
-            navLinks.push(<button key="last" onClick={this.handleNavLast}>&gt;&gt;</button>);
-        }
-
-        return (
-            <div>
-                {pageInfo}
-                <input ref="pageSize" defaultValue={this.props.pageSize} onInput={this.handleInput}/>
-                <table>
-                    <tbody>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Description</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                    {employees}
-                    </tbody>
-                </table>
-                <div>
-                    {navLinks}
-                </div>
-            </div>
-        )
-    }
-}
-
-/*
-    Handles individual employee records in the table
- */
-class Employee extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.handleDelete = this.handleDelete.bind(this);
-    }
-
-    handleDelete() {
-        this.props.onDelete(this.props.employee);
-    }
-
-    render() {
-        return (
-            <tr>
-                <td>{this.props.employee.entity.firstName}</td>
-                <td>{this.props.employee.entity.lastName}</td>
-                <td>{this.props.employee.entity.description}</td>
-                <td>
-                    <UpdateEmployeeDialog employee={this.props.employee} attributes={this.props.attributes} onUpdate={this.props.onUpdate}/>
-                </td>
-                <td>
-                    <button onClick={this.handleDelete}>Delete</button>
-                </td>
-            </tr>
-        )
     }
 }
 
 /*
  Handles entire table
  */
-class ShiftList extends React.Component {
+class RecordList extends React.Component {
 
     constructor(props) {
         super(props);
@@ -643,11 +469,11 @@ class ShiftList extends React.Component {
 
     render() {
         var pageInfo = this.props.page.hasOwnProperty("number") ?
-            <h3>Shifts - Page {this.props.page.number + 1} of {this.props.page.totalPages}</h3> : null;
+            <h3>{this.props.type} - Page {this.props.page.number + 1} of {this.props.page.totalPages}</h3> : null;
 
-        var shifts = this.props.shifts.map(shift =>
-            <Shift key={shift.entity._links.self.href} shift={shift} attributes={this.props.attributes}
-                      onUpdate={this.props.onUpdate} onDelete={this.props.onDelete}/>
+        var records = this.props.records.map(record =>
+            <Record key={record.entity._links.self.href} record={record} attributes={this.props.attributes}
+                      onUpdate={this.props.onUpdate} onDelete={this.props.onDelete} type={this.props.type}/>
         );
 
         var navLinks = [];
@@ -664,6 +490,12 @@ class ShiftList extends React.Component {
             navLinks.push(<button key="last" onClick={this.handleNavLast}>&gt;&gt;</button>);
         }
 
+        var headers = [];
+        for(var i = 0; i < this.props.attributes.length; i++) {
+            // Replace uses Regex to replace first character of space with Capital letter
+            headers.push(<td key={i}><b>{this.props.attributes[i].replace(/\b\w/g, l => l.toUpperCase())}</b></td>);
+        }
+
         return (
             <div>
                 {pageInfo}
@@ -671,13 +503,11 @@ class ShiftList extends React.Component {
                 <table>
                     <tbody>
                     <tr>
-                        <th>Description</th>
-                        <th>Day/Time</th>
-                        <th>EmployeeID</th>
+                        {headers}
                         <th></th>
                         <th></th>
                     </tr>
-                    {shifts}
+                    {records}
                     </tbody>
                 </table>
                 <div>
@@ -689,27 +519,29 @@ class ShiftList extends React.Component {
 }
 
 /*
- Handles individual shift records in the table
+    Handles individual records
  */
-class Shift extends React.Component {
-
+class Record extends React.Component {
     constructor(props) {
         super(props);
         this.handleDelete = this.handleDelete.bind(this);
     }
 
     handleDelete() {
-        this.props.onDelete(this.props.shift);
+        this.props.onDelete(this.props.record);
     }
 
     render() {
+        var values = [];
+        for(var i = 0; i < this.props.attributes.length; i++) {
+            values.push(<td key={i}>{this.props.record.entity[this.props.attributes[i]]}</td>);
+        }
+
         return (
             <tr>
-                <td>{this.props.shift.entity.description}</td>
-                <td>{this.props.shift.entity.day}</td>
-                <td>{this.props.shift.entity.employeeId}</td>
+                {values}
                 <td>
-                    <UpdateShiftDialog shift={this.props.shift} attributes={this.props.attributes} onUpdate={this.props.onUpdate}/>
+                    <UpdateDialog record={this.props.record} type={this.props.type} attributes={this.props.attributes} onUpdate={this.props.onUpdate}/>
                 </td>
                 <td>
                     <button onClick={this.handleDelete}>Delete</button>
@@ -718,8 +550,5 @@ class Shift extends React.Component {
         )
     }
 }
-/*
-
- */
 
 ReactDOM.render(<App />, document.getElementById('react'));
