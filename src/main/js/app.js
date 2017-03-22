@@ -15,7 +15,7 @@ class App extends React.Component {
         super(props);
         this.state = {
             employees: [], eAttributes: [], ePage: 1, ePageSize: 3, eLinks: {},
-            shifts: [], sAttributes: [], sPage: 1, sPageSize: 2, sLinks: {}
+            shifts: [], sAttributes: [], sPage: 1, sPageSize: 1, sLinks: {}
         };
         this.updatePageSize = this.updatePageSize.bind(this);
         this.updateShiftPageSize = this.updateShiftPageSize.bind(this);
@@ -408,7 +408,7 @@ class UpdateDialog extends React.Component {
         var dialogID = "update" + this.props.type + "-" + this.props.record.entity._links.self.href;
         return (
             <div key={this.props.record.entity._links.self.href}>
-                <a href={"#" + dialogID}>Update</a>
+                <button className="roundButtons"><a className="buttonText" href={"#" + dialogID}>Update</a></button>
                 <div id={dialogID} className="modalDialog">
                     <div>
                         <a href="#" title="Close" className="close">X</a>
@@ -468,8 +468,7 @@ class RecordList extends React.Component {
     }
 
     render() {
-        var pageInfo = this.props.page.hasOwnProperty("number") ?
-            <h3>{this.props.type} - Page {this.props.page.number + 1} of {this.props.page.totalPages}</h3> : null;
+        var pageInfo = <h3>{this.props.type}</h3>;
 
         var records = this.props.records.map(record =>
             <Record key={record.entity._links.self.href} record={record} attributes={this.props.attributes}
@@ -480,14 +479,28 @@ class RecordList extends React.Component {
         if ("first" in this.props.links) {
             navLinks.push(<button key="first" onClick={this.handleNavFirst}>&lt;&lt;</button>);
         }
+        else {
+            navLinks.push(<button key="first" className="disabledButton">&lt;&lt;</button>);
+        }
         if ("prev" in this.props.links) {
             navLinks.push(<button key="prev" onClick={this.handleNavPrev}>&lt;</button>);
         }
+        else {
+            navLinks.push(<button key="prev" className="disabledButton">&lt;</button>);
+        }
+        navLinks.push(this.props.page.hasOwnProperty("number") ? <b key="pageOf">Page {this.props.page.number + 1} of {this.props.page.totalPages}</b> : null);
+
         if ("next" in this.props.links) {
             navLinks.push(<button key="next" onClick={this.handleNavNext}>&gt;</button>);
         }
+        else {
+            navLinks.push(<button key="next" className="disabledButton">&gt;</button>);
+        }
         if ("last" in this.props.links) {
             navLinks.push(<button key="last" onClick={this.handleNavLast}>&gt;&gt;</button>);
+        }
+        else {
+            navLinks.push(<button key="last" className="disabledButton">&gt;&gt;</button>);
         }
 
         var headers = [];
@@ -504,8 +517,8 @@ class RecordList extends React.Component {
                     <tbody>
                     <tr>
                         {headers}
-                        <th></th>
-                        <th></th>
+                        <th className="invisibleBorders"></th>
+                        <th className="invisibleBorders"></th>
                     </tr>
                     {records}
                     </tbody>
@@ -540,11 +553,11 @@ class Record extends React.Component {
         return (
             <tr>
                 {values}
-                <td>
+                <td className="invisibleBorders">
                     <UpdateDialog record={this.props.record} type={this.props.type} attributes={this.props.attributes} onUpdate={this.props.onUpdate}/>
                 </td>
-                <td>
-                    <button onClick={this.handleDelete}>Delete</button>
+                <td className="invisibleBorders">
+                    <button className="roundButtons" onClick={this.handleDelete}>Delete</button>
                 </td>
             </tr>
         )

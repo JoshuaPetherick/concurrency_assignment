@@ -12,7 +12,31 @@ td, th {
     text-align: left;
 }
 
+button {
+    margin: 5px 8px 5px 8px;
+}
+
 /*Classes for creating dialogs*/
+
+.roundButtons {
+    border-radius: 10px;
+    margin: 0px 2px 0px 2px;
+}
+
+.buttonText {
+    text-decoration: none;
+    color: #000000;
+}
+
+.disabledButton {
+    border: 1px solid #999999;
+    background-color: #cccccc;
+    color: #666666;
+}
+
+.invisibleBorders {
+    border: 0px;
+}
 
 .modalDialog {
     position: fixed;

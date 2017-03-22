@@ -73,7 +73,7 @@
 	
 	        _this.state = {
 	            employees: [], eAttributes: [], ePage: 1, ePageSize: 3, eLinks: {},
-	            shifts: [], sAttributes: [], sPage: 1, sPageSize: 2, sLinks: {}
+	            shifts: [], sAttributes: [], sPage: 1, sPageSize: 1, sLinks: {}
 	        };
 	        _this.updatePageSize = _this.updatePageSize.bind(_this);
 	        _this.updateShiftPageSize = _this.updateShiftPageSize.bind(_this);
@@ -558,9 +558,13 @@
 	                'div',
 	                { key: this.props.record.entity._links.self.href },
 	                React.createElement(
-	                    'a',
-	                    { href: "#" + dialogID },
-	                    'Update'
+	                    'button',
+	                    { className: 'roundButtons' },
+	                    React.createElement(
+	                        'a',
+	                        { className: 'buttonText', href: "#" + dialogID },
+	                        'Update'
+	                    )
 	                ),
 	                React.createElement(
 	                    'div',
@@ -661,15 +665,11 @@
 	        value: function render() {
 	            var _this18 = this;
 	
-	            var pageInfo = this.props.page.hasOwnProperty("number") ? React.createElement(
+	            var pageInfo = React.createElement(
 	                'h3',
 	                null,
-	                this.props.type,
-	                ' - Page ',
-	                this.props.page.number + 1,
-	                ' of ',
-	                this.props.page.totalPages
-	            ) : null;
+	                this.props.type
+	            );
 	
 	            var records = this.props.records.map(function (record) {
 	                return React.createElement(Record, { key: record.entity._links.self.href, record: record, attributes: _this18.props.attributes,
@@ -683,6 +683,12 @@
 	                    { key: 'first', onClick: this.handleNavFirst },
 	                    '<<'
 	                ));
+	            } else {
+	                navLinks.push(React.createElement(
+	                    'button',
+	                    { key: 'first', className: 'disabledButton' },
+	                    '<<'
+	                ));
 	            }
 	            if ("prev" in this.props.links) {
 	                navLinks.push(React.createElement(
@@ -690,11 +696,32 @@
 	                    { key: 'prev', onClick: this.handleNavPrev },
 	                    '<'
 	                ));
+	            } else {
+	                navLinks.push(React.createElement(
+	                    'button',
+	                    { key: 'prev', className: 'disabledButton' },
+	                    '<'
+	                ));
 	            }
+	            navLinks.push(this.props.page.hasOwnProperty("number") ? React.createElement(
+	                'b',
+	                { key: 'pageOf' },
+	                'Page ',
+	                this.props.page.number + 1,
+	                ' of ',
+	                this.props.page.totalPages
+	            ) : null);
+	
 	            if ("next" in this.props.links) {
 	                navLinks.push(React.createElement(
 	                    'button',
 	                    { key: 'next', onClick: this.handleNavNext },
+	                    '>'
+	                ));
+	            } else {
+	                navLinks.push(React.createElement(
+	                    'button',
+	                    { key: 'next', className: 'disabledButton' },
 	                    '>'
 	                ));
 	            }
@@ -702,6 +729,12 @@
 	                navLinks.push(React.createElement(
 	                    'button',
 	                    { key: 'last', onClick: this.handleNavLast },
+	                    '>>'
+	                ));
+	            } else {
+	                navLinks.push(React.createElement(
+	                    'button',
+	                    { key: 'last', className: 'disabledButton' },
 	                    '>>'
 	                ));
 	            }
@@ -737,8 +770,8 @@
 	                            'tr',
 	                            null,
 	                            headers,
-	                            React.createElement('th', null),
-	                            React.createElement('th', null)
+	                            React.createElement('th', { className: 'invisibleBorders' }),
+	                            React.createElement('th', { className: 'invisibleBorders' })
 	                        ),
 	                        records
 	                    )
@@ -795,15 +828,15 @@
 	                values,
 	                React.createElement(
 	                    'td',
-	                    null,
+	                    { className: 'invisibleBorders' },
 	                    React.createElement(UpdateDialog, { record: this.props.record, type: this.props.type, attributes: this.props.attributes, onUpdate: this.props.onUpdate })
 	                ),
 	                React.createElement(
 	                    'td',
-	                    null,
+	                    { className: 'invisibleBorders' },
 	                    React.createElement(
 	                        'button',
-	                        { onClick: this.handleDelete },
+	                        { className: 'roundButtons', onClick: this.handleDelete },
 	                        'Delete'
 	                    )
 	                )
