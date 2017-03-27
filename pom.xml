@@ -57,7 +57,7 @@
 			<artifactId>keycloak-authz-client</artifactId>
 			<version>2.5.4.Final</version>
 		</dependency>-->
-		<!--<<dependency>
+		<!--<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
@@ -66,6 +66,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.wildfly.plugins</groupId>
+			<artifactId>wildfly-maven-plugin</artifactId>
+			<version>1.2.0.Alpha4</version>
+			<type>maven-plugin</type>
 		</dependency>
 	</dependencies>
 

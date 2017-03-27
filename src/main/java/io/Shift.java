@@ -5,6 +5,8 @@ import javax.persistence.Id;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Version;
+import javax.validation.constraints.Null;
+
 import com.sun.istack.internal.Nullable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -20,12 +22,6 @@ public class Shift
     private @Version @JsonIgnore Long version;
 
     private Shift() {}
-
-    public Shift(String description, String day)
-    {
-        this.description = description;
-        this.day = day;
-    }
 
     public Shift(String description, String day, int employeeId)
     {
