@@ -1,4 +1,5 @@
 'use strict';
+import Keycloak from 'keycloak-js';
 
 const React = require('react');
 const ReactDOM = require('react-dom');
@@ -564,4 +565,18 @@ class Record extends React.Component {
     }
 }
 
-ReactDOM.render(<App />, document.getElementById('react'));
+var kcState;
+const kc = Keycloak('/keycloak.json');
+kc.init({onLoad: 'check-sso'}).success(authenticated => {
+    if (authenticated) {
+        kcState = kc;
+
+        setInterval(() => {
+            kc.updateToken(10).error(() => kc.logout());
+        }, 10000);
+
+        ReactDOM.render(<App />, document.getElementById("react"));
+
+    } else {
+        kc.login();
+    }});
