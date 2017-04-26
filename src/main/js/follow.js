@@ -1,18 +1,19 @@
 /**
  * Created by Joshua on 27/02/2017.
  */
-module.exports = function follow(api, rootPath, relArray) {
+module.exports = function follow(api, rootPath, relArray, token) {
     var root = api({
         method: 'GET',
-        path: rootPath
+        path: rootPath,
+        headers: {'Authorization':'Bearer ' + token}
     });
 
     return relArray.reduce(function(root, arrayItem) {
         var rel = typeof arrayItem === 'string' ? arrayItem : arrayItem.rel;
-        return traverseNext(root, rel, arrayItem);
+        return traverseNext(root, rel, arrayItem, token);
     }, root);
 
-    function traverseNext (root, rel, arrayItem) {
+    function traverseNext (root, rel, arrayItem, token) {
         return root.then(function (response) {
             if (hasEmbeddedRel(response.entity, rel)) {
                 return response.entity._embedded[rel];
@@ -25,13 +26,16 @@ module.exports = function follow(api, rootPath, relArray) {
             if (typeof arrayItem === 'string') {
                 return api({
                     method: 'GET',
-                    path: response.entity._links[rel].href
+                    path: response.entity._links[rel].href,
+                    headers: {'Authorization':'Bearer ' + token}
+
                 });
             } else {
                 return api({
                     method: 'GET',
                     path: response.entity._links[rel].href,
-                    params: arrayItem.params
+                    params: arrayItem.params,
+                    headers: {'Authorization':'Bearer ' + token}
                 });
             }
         });

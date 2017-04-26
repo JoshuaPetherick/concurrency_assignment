@@ -1,7 +1,7 @@
 {
-  "realm": "realm",
+  "realm": "Concurrency",
   "auth-server-url": "http://localhost:8080/auth",
   "ssl-required": "external",
-  "resource": "resource",
+  "resource": "Front-End",
   "public-client": true
 }

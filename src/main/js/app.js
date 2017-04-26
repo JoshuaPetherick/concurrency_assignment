@@ -1,5 +1,5 @@
 'use strict';
-import Keycloak from 'keycloak-js';
+var $authToken = "";
 
 const React = require('react');
 const ReactDOM = require('react-dom');
@@ -7,6 +7,7 @@ const client = require('./client');
 const when = require('when');
 const follow = require('./follow');
 const stompClient = require('./websocket-listener');
+const Keycloak = require('keycloak-js');
 
 const root = '/api';
 
@@ -42,12 +43,12 @@ class App extends React.Component {
 
     loadFromServer(ePageSize) {
         follow(client, root, [
-            {rel: 'employees', params: {size: ePageSize}}]
+            {rel: 'employees', params: {size: ePageSize}}], $authToken
         ).then(employeeCollection => {
             return client({
                 method: 'GET',
                 path: employeeCollection.entity._links.profile.href,
-                headers: {'Accept': 'application/schema+json'}
+                headers: {'Accept': 'application/schema+json', 'Authorization':'Bearer ' + $authToken}
             }).then(schema => {
                 this.eSchema = schema.entity;
                 this.state.eLinks = employeeCollection.entity._links;
@@ -58,7 +59,8 @@ class App extends React.Component {
             return employeeCollection.entity._embedded.employees.map(employee =>
             client({
                 method: 'GET',
-                path: employee._links.self.href
+                path: employee._links.self.href,
+                headers: {'Authorization':'Bearer ' + $authToken}
             }));
         }).then(employeePromises => {
             return when.all(employeePromises);
@@ -72,12 +74,12 @@ class App extends React.Component {
 
     loadFromServerShift(sPageSize) {
         follow(client, root, [
-            {rel: 'shifts', params: {size: sPageSize}}]
+            {rel: 'shifts', params: {size: sPageSize}}], $authToken
         ).then(shiftCollection => {
             return client({
                 method: 'GET',
                 path: shiftCollection.entity._links.profile.href,
-                headers: {'Accept': 'application/schema+json'}
+                headers: {'Accept': 'application/schema+json', 'Authorization':'Bearer ' + $authToken}
             }).then(schema => {
                 this.sSchema = schema.entity;
                 this.state.sLinks = shiftCollection.entity._links;
@@ -88,7 +90,8 @@ class App extends React.Component {
             return shiftCollection.entity._embedded.shifts.map(shift =>
                 client({
                     method: 'GET',
-                    path: shift._links.self.href
+                    path: shift._links.self.href,
+                    headers: {'Authorization':'Bearer ' + $authToken}
                 }));
         }).then(shiftPromises => {
             return when.all(shiftPromises);
@@ -101,33 +104,33 @@ class App extends React.Component {
     }
 
     onCreate(newEmployee) {
-        follow(client, root, ['employees']).done(response => {
+        follow(client, root, ['employees'], $authToken).done(response => {
             client({
                 method: 'POST',
                 path: response.entity._links.self.href,
                 entity: newEmployee,
-                headers: {'Content-Type': 'application/json'}
+                headers: {'Content-Type': 'application/json', 'Authorization':'Bearer ' + $authToken}
             })
         })
     }
 
     onCreateShift(newShift) {
-        follow(client, root, ['shifts']).done(response => {
+        follow(client, root, ['shifts'], $authToken).done(response => {
             client({
                 method: 'POST',
                 path: response.entity._links.self.href,
                 entity: newShift,
-                headers: {'Content-Type': 'application/json'}
+                headers: {'Content-Type': 'application/json', 'Authorization':'Bearer ' + $authToken}
             })
         })
     }
 
     onDelete(employee) {
-        client({method: 'DELETE', path: employee.entity._links.self.href});
+        client({method: 'DELETE', path: employee.entity._links.self.href, headers: {'Authorization':'Bearer ' + $authToken}});
     }
 
     onDeleteShift(shift) {
-        client({method: 'DELETE', path: shift.entity._links.self.href});
+        client({method: 'DELETE', path: shift.entity._links.self.href, headers: {'Authorization':'Bearer ' + $authToken}});
     }
 
     onUpdate(employee, updatedEmployee) {
@@ -137,7 +140,8 @@ class App extends React.Component {
             entity: updatedEmployee,
             headers: {
                 'Content-Type': 'application/json',
-                'If-Match': employee.headers.Etag
+                'If-Match': employee.headers.Etag,
+                'Authorization':'Bearer ' + $authToken
             }
         }).done(response => {
             this.loadFromServer(this.state.ePageSize);
@@ -155,7 +159,8 @@ class App extends React.Component {
             entity: updatedShift,
             headers: {
                 'Content-Type': 'application/json',
-                'If-Match': shift.headers.Etag
+                'If-Match': shift.headers.Etag,
+                'Authorization':'Bearer ' + $authToken
             }
         }).done(response => {
             this.loadFromServerShift(this.state.sPageSize);
@@ -167,13 +172,14 @@ class App extends React.Component {
     }
 
     onNavigate(navUri) {
-        client({method: 'GET', path: navUri}).then(employeeCollection => {
+        client({method: 'GET', path: navUri, headers: {'Authorization':'Bearer ' + $authToken}}).then(employeeCollection => {
             this.state.eLinks = employeeCollection.entity._links;
             this.state.ePage = employeeCollection.entity.page;
             return employeeCollection.entity._embedded.employees.map(employee =>
                 client({
                     method: 'GET',
-                    path: employee._links.self.href
+                    path: employee._links.self.href,
+                    headers: {'Authorization':'Bearer ' + $authToken}
                 }));
         }).then(employeePromises => {
             return when.all(employeePromises);
@@ -186,13 +192,14 @@ class App extends React.Component {
     }
 
     onNavigateShift(navUri) {
-        client({method: 'GET', path: navUri}).then(shiftCollection => {
+        client({method: 'GET', path: navUri, headers: {'Authorization':'Bearer ' + $authToken}}).then(shiftCollection => {
             this.state.sLinks = shiftCollection.entity._links;
             this.state.sPage = shiftCollection.entity.page;
             return shiftCollection.entity._embedded.shifts.map(shift =>
                 client({
                     method: 'GET',
-                    path: shift._links.self.href
+                    path: shift._links.self.href,
+                    headers: {'Authorization':'Bearer ' + $authToken}
                 }));
         }).then(shiftPromises => {
             return when.all(shiftPromises);
@@ -220,7 +227,7 @@ class App extends React.Component {
         follow(client, root, [{
             rel: 'employees',
             params: {size: this.state.ePageSize}
-        }]).done(response => {
+        }], $authToken).done(response => {
             if (response.entity._links.last !== undefined) {
                 this.onNavigate(response.entity._links.last.href);
             } else {
@@ -233,7 +240,7 @@ class App extends React.Component {
         follow(client, root, [{
             rel: 'shifts',
             params: {size: this.state.sPageSize}
-        }]).done(response => {
+        }], $authToken).done(response => {
             if (response.entity._links.last !== undefined) {
                 this.onNavigateShift(response.entity._links.last.href);
             } else {
@@ -249,14 +256,15 @@ class App extends React.Component {
                 size: this.state.ePageSize,
                 page: this.state.ePage.number
             }
-        }]).then(employeeCollection => {
+        }], $authToken).then(employeeCollection => {
             this.state.eLinks = employeeCollection.entity._links;
             this.state.ePage = employeeCollection.entity.page;
 
             return employeeCollection.entity._embedded.employees.map(employee => {
                 return client({
                     method: 'GET',
-                    path: employee._links.self.href
+                    path: employee._links.self.href,
+                    headers: {'Authorization':'Bearer ' + $authToken}
                 })
             });
         }).then(employeePromises => {
@@ -276,14 +284,15 @@ class App extends React.Component {
                 size: this.state.sPageSize,
                 page: this.state.sPage.number
             }
-        }]).then(shiftCollection => {
+        }], $authToken).then(shiftCollection => {
             this.state.sLinks = shiftCollection.entity._links;
             this.state.sPage = shiftCollection.entity.page;
 
             return shiftCollection.entity._embedded.shifts.map(shift => {
                 return client({
                     method: 'GET',
-                    path: shift._links.self.href
+                    path: shift._links.self.href,
+                    headers: {'Authorization':'Bearer ' + $authToken}
                 })
             });
         }).then(shiftPromises => {
@@ -565,18 +574,18 @@ class Record extends React.Component {
     }
 }
 
-var kcState;
+// https://github.com/wildfly-swarm/wildfly-swarm-examples/blob/master/ribbon-secured/frontend/src/main/resources/js/app.js
 const kc = Keycloak('/keycloak.json');
 kc.init({onLoad: 'check-sso'}).success(authenticated => {
     if (authenticated) {
-        kcState = kc;
-
         setInterval(() => {
             kc.updateToken(10).error(() => kc.logout());
         }, 10000);
 
+        $authToken = kc.token;
         ReactDOM.render(<App />, document.getElementById("react"));
 
     } else {
         kc.login();
     }});
+
