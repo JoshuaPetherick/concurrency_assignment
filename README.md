@@ -14,3 +14,5 @@ If any errors occur after creating a new user, make sure that they have been ass
 You will require a JDK in order to run this system.
 ## Reference
 This project began by following the React.js and Spring Data REST tutorial: https://spring.io/guides/tutorials/react-and-spring-data-rest/ and the git repository it's linked to: https://github.com/spring-guides/tut-react-and-spring-data-rest/tree/master/basic
+
+Also used "Authentication with Spring Boot, AngularJS and Keycloak" post to help setup keycloak: http://slackspace.de/articles/authentication-with-spring-boot-angularjs-and-keycloak/
