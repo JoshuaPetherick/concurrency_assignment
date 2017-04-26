@@ -1,6 +1,5 @@
-/**
- * Created by Joshua on 27/02/2017.
- */
+// The below was provided by the reference tutorial under the Creative Commons License
+
 module.exports = function follow(api, rootPath, relArray, token) {
     var root = api({
         method: 'GET',

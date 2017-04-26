@@ -4,9 +4,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.config.annotation.*;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 
-/**
- * Created by Joshua on 06/03/2017.
- */
+// The below was provided by the reference tutorial under the Creative Commons License
+
 @Component
 @EnableWebSocketMessageBroker
 public class WebSocketConfiguration extends AbstractWebSocketMessageBrokerConfigurer

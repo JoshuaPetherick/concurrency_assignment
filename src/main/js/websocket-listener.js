@@ -1,6 +1,5 @@
-/**
- * Created by Joshua on 06/03/2017.
- */
+// The below was provided by the reference tutorial under the Creative Commons License
+
 'use strict';
 
 var SockJS = require('sockjs-client');

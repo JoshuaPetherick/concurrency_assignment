@@ -1,5 +1,4 @@
 package io;
-
 import static io.WebSocketConfiguration.*;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.stereotype.Component;
@@ -7,9 +6,8 @@ import org.springframework.data.rest.core.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-/**
- * Created by Joshua on 06/03/2017.
- */
+// The below was provided by the reference tutorial under the Creative Commons License
+
 @Component
 @RepositoryEventHandler(Employee.class)
 public class EventHandler

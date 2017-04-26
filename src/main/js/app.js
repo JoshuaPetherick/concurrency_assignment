@@ -8,8 +8,9 @@ const when = require('when');
 const follow = require('./follow');
 const stompClient = require('./websocket-listener');
 const Keycloak = require('keycloak-js');
-
 const root = '/api';
+
+// The below was based off referenced tutorial under the Creative Commons License
 
 class App extends React.Component {
 
@@ -574,7 +575,6 @@ class Record extends React.Component {
     }
 }
 
-// https://github.com/wildfly-swarm/wildfly-swarm-examples/blob/master/ribbon-secured/frontend/src/main/resources/js/app.js
 const kc = Keycloak('/keycloak.json');
 kc.init({onLoad: 'check-sso'}).success(authenticated => {
     if (authenticated) {
@@ -582,10 +582,13 @@ kc.init({onLoad: 'check-sso'}).success(authenticated => {
             kc.updateToken(10).error(() => kc.logout());
         }, 10000);
 
+        // Store token as it's authorised
         $authToken = kc.token;
+        // Build actual webpage
         ReactDOM.render(<App />, document.getElementById("react"));
 
     } else {
+        // Send user to login screen
         kc.login();
     }});
 

@@ -1,6 +1,4 @@
-/**
- * Created by Joshua on 27/02/2017.
- */
+// The below was provided by the reference tutorial under the Creative Commons License
 'use strict';
 
 var rest = require('rest');

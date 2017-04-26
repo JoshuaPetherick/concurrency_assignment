@@ -1,3 +1,5 @@
+// The below was provided by the reference tutorial under the Creative Commons License
+
 define(function() {
 	'use strict';
 

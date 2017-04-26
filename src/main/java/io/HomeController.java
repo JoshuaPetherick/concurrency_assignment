@@ -3,9 +3,8 @@ package io;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-/**
- * Created by Joshua on 27/02/2017.
- */
+// The below was provided by the reference tutorial under the Creative Commons License
+
 @Controller
 public class HomeController
 {

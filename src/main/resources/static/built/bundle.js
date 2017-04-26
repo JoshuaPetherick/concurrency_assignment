@@ -63,8 +63,9 @@
 	var follow = __webpack_require__(226);
 	var stompClient = __webpack_require__(227);
 	var Keycloak = __webpack_require__(299);
-	
 	var root = '/api';
+	
+	// The below was based off referenced tutorial under the Creative Commons License
 	
 	var App = function (_React$Component) {
 	    _inherits(App, _React$Component);
@@ -858,9 +859,6 @@
 	    return Record;
 	}(React.Component);
 	
-	// https://github.com/wildfly-swarm/wildfly-swarm-examples/blob/master/ribbon-secured/frontend/src/main/resources/js/app.js
-	
-	
 	var kc = Keycloak('/keycloak.json');
 	kc.init({ onLoad: 'check-sso' }).success(function (authenticated) {
 	    if (authenticated) {
@@ -870,9 +868,12 @@
 	            });
 	        }, 10000);
 	
+	        // Store token as it's authorised
 	        $authToken = kc.token;
+	        // Build actual webpage
 	        ReactDOM.render(React.createElement(App, null), document.getElementById("react"));
 	    } else {
+	        // Send user to login screen
 	        kc.login();
 	    }
 	});
@@ -22315,9 +22316,7 @@
 /* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
-	 * Created by Joshua on 27/02/2017.
-	 */
+	// The below was provided by the reference tutorial under the Creative Commons License
 	'use strict';
 	
 	var rest = __webpack_require__(179);
@@ -27234,6 +27233,8 @@
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 	
+	// The below was provided by the reference tutorial under the Creative Commons License
+	
 	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
 		'use strict';
 	
@@ -27311,6 +27312,8 @@
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 	
+	// The below was provided by the reference tutorial under the Creative Commons License
+	
 	!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 		'use strict';
 	
@@ -27340,9 +27343,8 @@
 
 	'use strict';
 	
-	/**
-	 * Created by Joshua on 27/02/2017.
-	 */
+	// The below was provided by the reference tutorial under the Creative Commons License
+	
 	module.exports = function follow(api, rootPath, relArray, token) {
 	    var root = api({
 	        method: 'GET',
@@ -27392,9 +27394,8 @@
 /* 227 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
-	 * Created by Joshua on 06/03/2017.
-	 */
+	// The below was provided by the reference tutorial under the Creative Commons License
+	
 	'use strict';
 	
 	var SockJS = __webpack_require__(228);
